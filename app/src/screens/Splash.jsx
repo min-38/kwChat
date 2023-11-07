@@ -1,9 +1,31 @@
-import React from 'react';
+import { useEffect } from 'react';
 import {
-    SafeAreaView, StatusBar, Text, View
+    Animated, SafeAreaView, StatusBar, View
 } from 'react-native';
+import Title from "../common/Title"
 
 function SplashScreen() {
+
+    const translateY = new Animated.Value(0)
+    const duration = 1000
+
+    useEffect(() => {
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(translateY, {
+                    toValue: -20,
+                    duration: duration,
+                    useNativeDriver: true
+                }),
+                Animated.timing(translateY, {
+                    toValue: 0,
+                    duration: duration,
+                    useNativeDriver: true
+                })
+            ])
+        ).start()
+    }, [])
+
     return (
         <SafeAreaView
             style={{ 
@@ -14,18 +36,9 @@ function SplashScreen() {
             }}
         >
             <StatusBar barStyle='light-content' />
-            <View>
-                <Text
-                    style={{ 
-                        color: 'white',
-                        textAlign: 'center',
-                        fontSize: 48,
-                        fontFamily: 'Sunflower-Light'
-                    }}
-                >
-                    광운토크
-                </Text>
-            </View>
+            <Animated.View style={{ transform: [{ translateY }] }}>
+                <Title text='광운토크' color='white'></Title>
+            </Animated.View>
             {/* <SplashScreen /> */}
         </SafeAreaView>
     )
