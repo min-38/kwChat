@@ -1,10 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import {
     Animated, SafeAreaView, StatusBar, View
 } from 'react-native';
 import Title from "../common/Title"
 
-function SplashScreen() {
+function SplashScreen({ navigation }) {
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerShown: false
+        })
+    }, [])
 
     const translateY = new Animated.Value(0)
     const duration = 1000
@@ -39,7 +45,6 @@ function SplashScreen() {
             <Animated.View style={{ transform: [{ translateY }] }}>
                 <Title text='광운토크' color='white'></Title>
             </Animated.View>
-            {/* <SplashScreen /> */}
         </SafeAreaView>
     )
 }
