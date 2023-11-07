@@ -3,7 +3,7 @@ const { SafeAreaView, Text } = require("react-native");
 function FriendsScreen() {
     return (
         <SafeAreaView>
-            <Text>Requests</Text>
+            <Text>Friends</Text>
         </SafeAreaView>
     )
 }
