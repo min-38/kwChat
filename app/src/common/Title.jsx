@@ -7,7 +7,8 @@ function Title({ text, color }) {
                 color: color,
                 textAlign: 'center',
                 fontSize: 48,
-                fontFamily: 'Sunflower-Light'
+                fontFamily: 'Sunflower-Light',
+                marginBottom: 30
             }}
         >
             { text }
