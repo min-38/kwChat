@@ -3,6 +3,8 @@ import { SafeAreaView, View, Text, ImageBackground, TouchableWithoutFeedback, Ke
 import Title from "../common/Title"
 import Input from "../common/Input"
 import Button from "../common/Button"
+import api from "../core/api"
+import utils from "../core/utils"
 
 function SignInScreen({ navigation }) {
 
@@ -33,6 +35,31 @@ function SignInScreen({ navigation }) {
         if(failUserId || failPassword) {
             return
         }
+
+        // 로그인 요청
+        api({
+            method: 'POST',
+            url: '/chat/signin/',
+            data: {
+                userId: userId,
+                password: password
+            }
+        })
+        .then(response => {
+            utils.log('Sign In:', response)
+        })
+        .catch(error => {
+            if (error.response) {
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+            } else if (error.request) {
+                console.log(error.request);
+            } else {
+                console.log('Error', error.request);
+            }
+            console.log(error.config);
+        })
     }
 
     return (
