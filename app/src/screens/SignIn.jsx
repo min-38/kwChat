@@ -5,14 +5,17 @@ import Input from "../common/Input"
 import Button from "../common/Button"
 import api from "../core/api"
 import utils from "../core/utils"
+import useGlobal from "../core/global"
 
 function SignInScreen({ navigation }) {
 
-    const [userId, setUserId] = useState('')
+    const [userid, setuserid] = useState('')
     const [password, setPassword] = useState('')
 
-    const [userIdError, setUserIdError] = useState('')
+    const [useridError, setuseridError] = useState('')
     const [passwordError, setPasswordError] = useState('')
+
+    const login = useGlobal(state => state.login)
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -22,9 +25,9 @@ function SignInScreen({ navigation }) {
 
     function onSignIn() {
         // 아이디 확인
-        const failUserId = !userId;
-        if (failUserId) {
-            setUserIdError('아이디를 입력해주세요!')
+        const failuserid = !userid;
+        if (failuserid) {
+            setuseridError('아이디를 입력해주세요!')
         }
         // 유저 패스워드 확인
         const failPassword = !password;
@@ -32,7 +35,7 @@ function SignInScreen({ navigation }) {
             setPasswordError('패스워드를 입력해주세요!')
         }
 
-        if(failUserId || failPassword) {
+        if(failuserid || failPassword) {
             return
         }
 
@@ -41,12 +44,13 @@ function SignInScreen({ navigation }) {
             method: 'POST',
             url: '/chat/signin/',
             data: {
-                userId: userId,
+                userid: userid,
                 password: password
             }
         })
         .then(response => {
             utils.log('Sign In:', response)
+            login(response.data)
         })
         .catch(error => {
             if (error.response) {
@@ -85,10 +89,10 @@ function SignInScreen({ navigation }) {
                             
                             <Input
                                 title="아이디"
-                                value={userId}
-                                error={userIdError}
-                                setValue={setUserId}
-                                setError={setUserIdError}
+                                value={userid}
+                                error={useridError}
+                                setValue={setuserid}
+                                setError={setuseridError}
                             />
                             <Input 
                                 title="패스워드"

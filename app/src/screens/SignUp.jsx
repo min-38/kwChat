@@ -1,5 +1,5 @@
 import { useState, useLayoutEffect } from "react"
-import { SafeAreaView, Text, View, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from "react-native"
+import { SafeAreaView, Text, View, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Alert } from "react-native"
 import Input from "../common/Input"
 import Button from "../common/Button"
 import api from "../core/api"
@@ -73,10 +73,18 @@ function SignUpScreen({ navigation }) {
         })
         .then(response => {
             utils.log('Sign In:', response)
+            Alert.alert(username+ "님!\n광운토크의 회원이 되셨습니다.", "로그인해주세요~",
+                [
+                    {
+                        text: "확인",
+                        onPress: () => navigation.navigate('SignIn')
+                    },
+                ],
+                { cancelable: false }
+            );
         })
         .catch(error => {
             if (error.response) {
-                console.log("시발");
                 console.log(error.response.data);
                 console.log(error.response.status);
                 console.log(error.response.headers);
