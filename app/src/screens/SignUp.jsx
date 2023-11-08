@@ -1,5 +1,5 @@
 import { useState, useLayoutEffect } from "react"
-import { SafeAreaView, Text, View } from "react-native"
+import { SafeAreaView, Text, View, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from "react-native"
 import Input from "../common/Input"
 import Button from "../common/Button"
 
@@ -61,73 +61,77 @@ function SignUpScreen({ navigation }) {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <View 
-                style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    paddingHorizontal: 16
-                }}
-            >
-                <Text
-                    style={{
-                        textAlign: 'center',
-                        marginBottom: 24,
-                        fontSize: 36,
-                        fontWeight: 'bold',
-                    }}
-                >
-                    회원가입
-                </Text>
-
-                <Input
-                    title="아이디"
-                    value={userId}
-                    error={userIdError}
-                    setValue={setUserId}
-                    setError={setUserIdError}
-                />
-                <Input
-                    title="이름"
-                    value={username}
-                    error={usernameError}
-                    setValue={setUsername}
-                    setError={setUsernameError}
-                />
-                <Input
-                    title="비밀번호"
-                    value={password}
-                    error={passwordError}
-                    setValue={setPassword}
-                    setError={setPasswordError}
-                    secureTextEntry={true}
-                />
-                <Input
-                    title="비밀번호 재확인"
-                    value={password2}
-                    error={password2Error}
-                    setValue={setPassword2}
-                    setError={setPassword2Error}
-                    secureTextEntry={true}
-                />
-                <Input
-                    title="이메일"
-                    value={email}
-                    error={emailError}
-                    setValue={setEmail}
-                    setError={setEmailError}
-                />
-
-                <Button title="회원가입" onPress={ onSignUp }/>
-
-                <Text style={{ textAlign: 'center', marginTop: 40 }}>
-                    이미 회원이시라구요? <Text
-                        style={{ color: 'blue' }}
-                        onPress={() => navigation.goBack()}
+            <KeyboardAvoidingView behavior="height" style={{ flex: 1 }}>
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <View 
+                        style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            paddingHorizontal: 16
+                        }}
                     >
-                        로그인
-                    </Text>
-                </Text>
-            </View>
+                        <Text
+                            style={{
+                                textAlign: 'center',
+                                marginBottom: 24,
+                                fontSize: 36,
+                                fontWeight: 'bold',
+                            }}
+                        >
+                            회원가입
+                        </Text>
+
+                        <Input
+                            title="아이디"
+                            value={userId}
+                            error={userIdError}
+                            setValue={setUserId}
+                            setError={setUserIdError}
+                        />
+                        <Input
+                            title="이름"
+                            value={username}
+                            error={usernameError}
+                            setValue={setUsername}
+                            setError={setUsernameError}
+                        />
+                        <Input
+                            title="비밀번호"
+                            value={password}
+                            error={passwordError}
+                            setValue={setPassword}
+                            setError={setPasswordError}
+                            secureTextEntry={true}
+                        />
+                        <Input
+                            title="비밀번호 재확인"
+                            value={password2}
+                            error={password2Error}
+                            setValue={setPassword2}
+                            setError={setPassword2Error}
+                            secureTextEntry={true}
+                        />
+                        <Input
+                            title="이메일"
+                            value={email}
+                            error={emailError}
+                            setValue={setEmail}
+                            setError={setEmailError}
+                        />
+
+                        <Button title="회원가입" onPress={ onSignUp }/>
+
+                        <Text style={{ textAlign: 'center', marginTop: 40 }}>
+                            이미 회원이시라구요? <Text
+                                style={{ color: 'blue' }}
+                                onPress={() => navigation.goBack()}
+                            >
+                                로그인
+                            </Text>
+                        </Text>
+                    </View>
+                </TouchableWithoutFeedback>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     )
 }
