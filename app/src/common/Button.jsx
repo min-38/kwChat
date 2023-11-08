@@ -1,6 +1,6 @@
 import { Text, TouchableOpacity } from "react-native"
 
-function Button({ title }) {
+function Button({ title, onPress }) {
     return (
         <TouchableOpacity
             style={{
@@ -11,6 +11,7 @@ function Button({ title }) {
                 justifyContent: 'center',
                 marginTop: 25
             }}
+            onPress={onPress}
         >
             <Text
                 style={{
