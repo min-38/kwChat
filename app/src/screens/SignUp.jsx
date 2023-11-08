@@ -2,16 +2,18 @@ import { useState, useLayoutEffect } from "react"
 import { SafeAreaView, Text, View, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from "react-native"
 import Input from "../common/Input"
 import Button from "../common/Button"
+import api from "../core/api"
+import utils from "../core/utils"
 
 function SignUpScreen({ navigation }) {
 
-    const [userId, setUserId] = useState('')
+    const [userid, setuserid] = useState('')
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [password2, setPassword2] = useState('')
 
-    const [userIdError, setUserIdError] = useState('')
+    const [useridError, setuseridError] = useState('')
     const [usernameError, setUsernameError] = useState('')
     const [emailError, setEmailError] = useState('')
     const [passwordError, setPasswordError] = useState('')
@@ -25,9 +27,9 @@ function SignUpScreen({ navigation }) {
 
     function onSignUp() {
         // 아이딘 확인
-        const failUserId = !userId || userId.length < 5
-        if (failUserId) {
-            setUserIdError('아이디를 입력해주세요!\n(아이디는 5글자 이상 입력해주셔야 합니다.)')
+        const failuserid = !userid || userid.length < 5
+        if (failuserid) {
+            setuseridError('아이디를 입력해주세요!\n(아이디는 5글자 이상 입력해주셔야 합니다.)')
         }
         // 유저명 확인
         const failUsername = !username;
@@ -50,13 +52,41 @@ function SignUpScreen({ navigation }) {
             setEmailError("이메일을 입력해주세요")
         }
 
-        if(failUserId ||
+        if(failuserid ||
             failUsername ||
             failPassword ||
             failPassword2 ||
             failEmail) {
             return
         }
+
+        // 로그인 요청
+        api({
+            method: 'POST',
+            url: '/chat/signup/',
+            data: {
+                userid: userid,
+                username: username,
+                password: password,
+                email: email,
+            }
+        })
+        .then(response => {
+            utils.log('Sign In:', response)
+        })
+        .catch(error => {
+            if (error.response) {
+                console.log("시발");
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+            } else if (error.request) {
+                console.log(error.request);
+            } else {
+                console.log('Error', error.request);
+            }
+            console.log(error.config);
+        })
     }
 
     return (
@@ -83,10 +113,10 @@ function SignUpScreen({ navigation }) {
 
                         <Input
                             title="아이디"
-                            value={userId}
-                            error={userIdError}
-                            setValue={setUserId}
-                            setError={setUserIdError}
+                            value={userid}
+                            error={useridError}
+                            setValue={setuserid}
+                            setError={setuseridError}
                         />
                         <Input
                             title="이름"
