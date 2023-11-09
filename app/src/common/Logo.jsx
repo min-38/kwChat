@@ -1,13 +1,13 @@
-import { WithLocalSvg } from 'react-native-svg';
-import LogoSvg from '../assets/images/logo.svg';
+import { Image } from "react-native"
 
 function Logo() {
     return (
-        <WithLocalSvg
-            width={100}
-            height={100}
-            fill={"#FF0000"}
-            asset={require("../assets/images/logo.svg")}
+        <Image
+            source={require('../assets/images/logo.png')}
+            style={{
+                width: 70,
+                height: 70,
+            }}
         />
     )
 }

@@ -1,14 +1,13 @@
-import { Text } from "react-native"
+import { Fragment } from "react"
+import { Text, Image } from "react-native"
 import Logo from "./Logo"
 
 function AppName({logoVisible = 1, descVisible = 1}) {
     return (
-        [
-            <Logo
-                style={{ 
-                    opacity: logoVisible
-                }}
-            />,
+        <Fragment>
+            <Logo style={{ 
+                opacity: logoVisible,
+            }} />
             <Text
                 style={{
                     color: "#202020",
@@ -29,7 +28,7 @@ function AppName({logoVisible = 1, descVisible = 1}) {
                 >
                     Ship
                 </Text>
-            </Text>,
+            </Text>
             <Text
                 style={{
                     opacity: descVisible,
@@ -42,7 +41,7 @@ function AppName({logoVisible = 1, descVisible = 1}) {
             >
                 Relationship-focused chat app
             </Text>
-        ]
+        </Fragment>
     )
 }
 
