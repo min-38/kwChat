@@ -5,8 +5,9 @@ function log() {
         if (typeof arg === 'object') {
             arg = JSON.stringify(arg, null, 2)
         }
-        console.log(arg)
+        console.log(`[${Platform.OS}]`, arg)
     }
+
 }
 
 export default { log }
