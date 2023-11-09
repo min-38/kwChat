@@ -16,7 +16,6 @@ function ProfileImage() {
 				launchImageLibrary({ includeBase64: true }, (response) => {
 					// utils.log('launchImageLibrary', response)
 					if (response.didCancel) {
-                        console.log("qqq")
                         console.log(response.errorMessage)
                         return
                     }
