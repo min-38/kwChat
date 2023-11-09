@@ -53,11 +53,10 @@ CHANNEL_LAYERS = {
 	}
 }
 
-
 # Application definition
 
 INSTALLED_APPS = [
-	# 'daphne',
+	'daphne',
 	'rest_framework',
 	'rest_framework_simplejwt',
 

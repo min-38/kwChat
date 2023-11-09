@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     SafeAreaView, StatusBar, Text,
 } from 'react-native';
@@ -28,8 +28,14 @@ const Stack = createNativeStackNavigator();
 
 function App() {
 
-    const [initialized] = useState(true) 
+    const initialized = useGlobal(state => state.initialized) 
     const authenticated = useGlobal(state => state.authenticated)
+
+    const init = useGlobal(state => state.init)
+
+    useEffect(() => {
+        init()
+    }, [])
 
     return (
         <NavigationContainer>
