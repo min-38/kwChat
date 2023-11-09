@@ -1,7 +1,59 @@
 const { View, Text, Image, TouchableOpacity, Alert } = require("react-native");
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { launchImageLibrary } from 'react-native-image-picker'
 import useGlobal from "../core/global"
 import utils from "../core/utils"
+import Thumbnail from "../common/Thumbnail"
+
+function ProfileImage() {
+	const uploadThumbnail = useGlobal(state => state.uploadThumbnail)
+    const user = useGlobal(state => state.user)
+
+	return (
+		<TouchableOpacity 
+			style={{ marginBottom: 20 }}
+			onPress={() => {
+				launchImageLibrary({ includeBase64: true }, (response) => {
+					// utils.log('launchImageLibrary', response)
+					if (response.didCancel) {
+                        console.log("qqq")
+                        console.log(response.errorMessage)
+                        return
+                    }
+                        
+					const file = response.assets[0]
+					uploadThumbnail(file)
+				})
+			}}
+		>
+			<Thumbnail
+				url={user.thumbnail}
+				size={180}
+			/>
+			<View
+				style={{
+					position: 'absolute',
+					bottom: 0,
+					right: 0,
+					backgroundColor: '#202020',
+					width: 40,
+					height: 40,
+					borderRadius: 20,
+					alignItems: 'center',
+					justifyContent: 'center',
+					borderWidth: 3,
+					borderColor: 'white'
+				}}
+			>
+				<FontAwesomeIcon
+					icon='pencil'
+					size={15}
+					color='#d0d0d0'
+				/>
+			</View>
+		</TouchableOpacity>
+	)
+}
 
 function ProfileLogout() {
     const logout = useGlobal(state => state.logout)
@@ -66,10 +118,8 @@ function ProfileScreen() {
                 paddingTop: 100
             }}
         >
-            <Image
-                source={require('../assets/images/default-user-avartar.png')}
-                style={{ width: 180, height: 180, borderRadius: 90, backgroundColor: '#e0e0e0', marginBottom: 20 }}
-            />
+            <ProfileImage />
+
             <Text
                 style={{ 
                     textAlign: 'center',

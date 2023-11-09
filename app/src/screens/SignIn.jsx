@@ -49,14 +49,18 @@ function SignInScreen({ navigation }) {
             }
         })
         .then(response => {
-            utils.log('Sign In:', response)
-
-            const credentials = {
-                userid: userid,
-                password: password,
-            }
-            login(credentials, response.data.user)
-        })
+			utils.log('Sign In:', response.data)
+			
+			const credentials = {
+				userid: userid,
+				password: password
+			}
+			login(
+				credentials, 
+				response.data.user,
+				response.data.tokens
+			)
+		})
         .catch(error => {
             if (error.response) {
                 console.log(error.response.data);

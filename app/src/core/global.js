@@ -1,7 +1,19 @@
 import { create } from 'zustand'
 import secure from './secure'
+import api, { ADDRESS } from './api'
+import utils from './utils'
 
-const useGlobal = create((set) => ({
+//-------------------------------------
+//   Socket receive message handlers
+//-------------------------------------
+
+function responseThumbnail(set, get, data) {
+	set((state) => ({
+		user: data
+	}))
+}
+
+const useGlobal = create((set, get) => ({
 
 	//---------------------
 	//   Initialization
@@ -12,7 +24,6 @@ const useGlobal = create((set) => ({
 	init: async () => {
 		const credentials = await secure.get('credentials')
 		if (credentials) {
-
 			try {
 				const response = await api({
 					method: 'POST',
@@ -22,11 +33,9 @@ const useGlobal = create((set) => ({
 						password: credentials.password
 					}
 				})
-
 				if (response.status !== 200) {
 					throw 'Authentication error'
 				}
-
 				const user = response.data.user
 				const tokens = response.data.tokens
 
@@ -54,7 +63,7 @@ const useGlobal = create((set) => ({
 	authenticated: false,
 	user: {},
 
-	login: (credentials, user) => {
+	login: (credentials, user, tokens) => {
 		secure.set('credentials', credentials)
 		secure.set('tokens', tokens)
 		set((state) => ({
@@ -80,18 +89,11 @@ const useGlobal = create((set) => ({
 	socketConnect: async () => {
 		const tokens = await secure.get('tokens')
 
-		const url = `ws://${ADDRESS}/chat/?token=${tokens.access}`
-
+		const url = `ws://${ADDRESS}/kwchat/?token=${tokens.access}`
 		const socket = new WebSocket(url)
+
 		socket.onopen = () => {
 			utils.log('socket.onopen')
-
-			socket.send(JSON.stringify({
-				source: 'request.list'
-			}))
-			socket.send(JSON.stringify({
-				source: 'friend.list'
-			}))
 		}
 		socket.onmessage = (event) => {
 			// Convert data to javascript object
@@ -101,16 +103,7 @@ const useGlobal = create((set) => ({
 			utils.log('onmessage:', parsed)
 
 			const responses = {
-				'friend.list':     responseFriendList,
-				'friend.new':      responseFriendNew,
-				'message.list':    responseMessageList,
-				'message.send':    responseMessageSend,
-				'message.type':    responseMessageType,
-				'request.accept':  responseRequestAccept,
-				'request.connect': responseRequestConnect,
-				'request.list':    responseRequestList,
-				'search':          responseSearch,
-				'thumbnail':       responseThumbnail
+				'thumbnail': responseThumbnail
 			}
 			const resp = responses[parsed.source]
 			if (!resp) {
@@ -140,6 +133,19 @@ const useGlobal = create((set) => ({
 			socket: null
 		}))
 	},
+
+	//---------------------
+	//     Thumbnail
+	//---------------------
+
+	uploadThumbnail: (file) => {
+		const socket = get().socket
+		socket.send(JSON.stringify({
+			source: 'thumbnail',
+			base64: file.base64,
+			filename: file.fileName
+		}))
+	}
 }))
 
 
