@@ -57,6 +57,7 @@ function ProfileLogout() {
 }
 
 function ProfileScreen() {
+    const user = useGlobal(state => state.user)
     return (
         <View
             style={{
@@ -75,10 +76,10 @@ function ProfileScreen() {
                     color: '#303030',
                     fontSize: 20,
                     fontWeight: 'bold',
-                    marginTop: 6,
+                    marginBottom: 6,
                 }}
             >
-                사용자
+                {user.username}
             </Text>
 
             <Text
@@ -90,7 +91,7 @@ function ProfileScreen() {
                     // marginTop: 6,
                 }}
             >
-                @사용자
+                ID: @{user.userid}
             </Text>
             
             <ProfileLogout />

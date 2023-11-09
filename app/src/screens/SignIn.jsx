@@ -50,7 +50,12 @@ function SignInScreen({ navigation }) {
         })
         .then(response => {
             utils.log('Sign In:', response)
-            login(response.data)
+
+            const credentials = {
+                userid: userid,
+                password: password,
+            }
+            login(credentials, response.data.user)
         })
         .catch(error => {
             if (error.response) {
