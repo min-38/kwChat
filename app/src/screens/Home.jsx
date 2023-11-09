@@ -66,9 +66,9 @@ function HomeScreen({ navigation }) {
                 // tabBarActiveTintColor: 'dark'
             })}
         >
-            <Tab.Screen name="Requests" component={RequestsScreen}></Tab.Screen>
-            <Tab.Screen name="Friends" component={FriendsScreen}></Tab.Screen>
-            <Tab.Screen name="Profile" component={ProfileScreen}></Tab.Screen>
+            <Tab.Screen name="Requests" component={RequestsScreen} options={{ title: '친구 요청' }}></Tab.Screen>
+            <Tab.Screen name="Friends" component={FriendsScreen} options={{ title: '친구 리스트' }}></Tab.Screen>
+            <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: '프로필' }}></Tab.Screen>
         </Tab.Navigator>
     )
 }
