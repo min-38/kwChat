@@ -9,7 +9,7 @@ from django.db.models.functions import Coalesce
 
 from .models import User, Connection, Message
 
-from .serializers import UserSerializer
+from .serializers import UserSerializer, SearchSerializer, RequestSerializer
 
 class ChatConsumer(WebsocketConsumer):
 
@@ -45,11 +45,92 @@ class ChatConsumer(WebsocketConsumer):
 		data_source = data.get('source')
 
 		# Pretty print  python dict
-		# print('receive', json.dumps(data, indent=2))
+		print('receive', json.dumps(data, indent=2))
 
-		# Thumbnail upload
-		if data_source == 'thumbnail':
+		# 유저 검색 / 유저 필터링
+		if data_source == 'search':
+			self.receive_search(data)
+		# 친구 요청
+		elif data_source == 'request.connect':
+			self.receive_request_connect(data)
+		# 친구 요청 리스트
+		elif data_source == 'request.list':
+			self.receive_request_list(data)
+		# 프로필 사진 업로드
+		elif data_source == 'thumbnail':
 			self.receive_thumbnail(data)
+
+	def receive_request_connect(self, data):
+		userid = data.get('userid')
+		# Attempt to fetch the receiving user
+		try:
+			receiver = User.objects.get(userid=userid)
+		except User.DoesNotExist:
+			print('Error: User not found')
+			return
+		# Create connection
+		connection, _ = Connection.objects.get_or_create(
+			sender=self.scope['user'],
+			receiver=receiver
+		)
+		# Serialized connection
+		serialized = RequestSerializer(connection)
+		# Send back to sender
+		self.send_group(
+			connection.sender.userid, 'request.connect', serialized.data
+		)
+		# Send to receiver
+		self.send_group(
+			connection.receiver.userid, 'request.connect', serialized.data
+		)
+
+	def receive_request_list(self, data):
+		user = self.scope['user']
+		# 이 유저에 대한 모든 연결을 가져옴
+		connections = Connection.objects.filter(
+			receiver=user,
+			accepted=False
+		)
+		serialized = RequestSerializer(connections, many=True)
+		
+		self.send_group(user.userid, 'request.list', serialized.data)
+
+	def receive_search(self, data):
+		query = data.get('query')
+		# 쿼리로 유저 가져옴
+		users = User.objects.filter(
+			Q(userid__istartswith=query)   |
+			Q(username__istartswith=query)
+		).exclude(
+			userid=self.userid
+		).annotate(
+			pending_them=Exists(
+				Connection.objects.filter(
+					sender=self.scope['user'],
+					receiver=OuterRef('id'),
+					accepted=False
+				)
+			),
+			pending_me=Exists(
+				Connection.objects.filter(
+					receiver=OuterRef('id'),
+					sender=self.scope['user'],
+					accepted=False
+				)
+			),
+			connected=Exists(
+				Connection.objects.filter(
+					Q(sender=self.scope['user'], receiver=OuterRef('id')) | 
+					Q(receiver=self.scope['user'], sender=OuterRef('id')),
+					accetped=True
+				)
+			),
+		)
+
+		# serialize results
+		serialized = SearchSerializer(users, many=True)
+		# Send search results back to this user
+		self.send_group(self.userid, 'search', serialized.data)
 
 	def receive_thumbnail(self, data):
 		user = self.scope['user']

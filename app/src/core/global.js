@@ -7,6 +7,46 @@ import utils from './utils'
 //   Socket receive message handlers
 //-------------------------------------
 
+function responseRequestConnect(set, get, connection) {
+	const user = get().user
+	// 요청하면 검색 다시 업데이트
+	if (user.userid === connection.sender.userid) {
+		const searchList = get().searchList
+		const searchIndex = searchList.findIndex(
+			request => request.username === connection.receiver.userid
+		)
+		if (searchIndex >= 0) {
+			searchList[searchIndex].status = ''
+			set((state) => ({
+				searchList: searchList
+			}))
+		}
+	} else {
+		const requestList = [...get().requestList]
+		const requestIndex = requestList.findIndex(
+			request => request.sender.userid === connection.sender.userid
+		)
+		if(requestIndex === -1) {
+			requestList.unshift(connection)
+			set((state) => ({
+				requestList: requestList
+			}))
+		}
+	}
+}
+
+function responseRequestList(set, get, requestList) {
+	set((state) => ({
+		requestList: requestList
+	}))
+}
+
+function responseSearch(set, get, data) {
+	set((state) => ({
+		searchList: data
+	}))
+}
+
 function responseThumbnail(set, get, data) {
 	set((state) => ({
 		user: data
@@ -94,6 +134,9 @@ const useGlobal = create((set, get) => ({
 
 		socket.onopen = () => {
 			utils.log('socket.onopen')
+			socket.send(JSON.stringify({
+				source: 'request.list'
+			}))
 		}
 		socket.onmessage = (event) => {
 			// Convert data to javascript object
@@ -103,7 +146,10 @@ const useGlobal = create((set, get) => ({
 			utils.log('onmessage:', parsed)
 
 			const responses = {
-				'thumbnail': responseThumbnail
+				'request.connect': responseRequestConnect,
+				'request.list': responseRequestList,
+				'search'		 : responseSearch,
+				'thumbnail'		 : responseThumbnail
 			}
 			const resp = responses[parsed.source]
 			if (!resp) {
@@ -131,6 +177,48 @@ const useGlobal = create((set, get) => ({
 		}
 		set((state) => ({
 			socket: null
+		}))
+	},
+
+	//---------------------
+	//     Search
+	//---------------------
+
+	searchList: null,
+
+	searchUsers: (query) => {
+		if(query) {
+			const socket = get().socket
+			socket.send(JSON.stringify({
+				source: 'search',
+				query: query
+			}))
+		} else {
+			set((state) => ({
+				searchList: null
+			}))
+		}
+	},
+
+	//---------------------
+	//     Requests
+	//---------------------
+
+	requestList: null,
+
+	requestAccept: (username) => {
+		const socket = get().socket
+		socket.send(JSON.stringify({
+			source: 'request.accept',
+			username: username
+		}))
+	},
+
+	requestConnect: (username) => {
+		const socket = get().socket
+		socket.send(JSON.stringify({
+			source: 'request.connect',
+			username: username
 		}))
 	},
 

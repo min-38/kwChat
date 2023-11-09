@@ -54,9 +54,7 @@ class Connection(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
-		return self.sender.username + ' -> ' + self.receiver.username
-
-
+		return self.sender.userid + ' -> ' + self.receiver.userid
 
 class Message(models.Model):
 	connection = models.ForeignKey(
