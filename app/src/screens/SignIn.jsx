@@ -1,6 +1,6 @@
 import { useState, useLayoutEffect } from "react"
-import { SafeAreaView, View, Text, ImageBackground, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from "react-native"
-import Title from "../common/Title"
+import { SafeAreaView, View, Text, ImageBackground, Image, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from "react-native"
+import AppName from "../common/AppName"
 import Input from "../common/Input"
 import Button from "../common/Button"
 import api from "../core/api"
@@ -85,7 +85,7 @@ function SignInScreen({ navigation }) {
                                 paddingHorizontal: 20,
                             }}
                         >
-                            <Title text='광운토크' color='#202020' />
+                            <AppName logoVisible={1} descVisible={1}/>
                             
                             <Input
                                 title="아이디"

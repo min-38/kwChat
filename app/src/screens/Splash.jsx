@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect } from 'react';
 import {
     Animated, SafeAreaView, StatusBar, View
 } from 'react-native';
-import Title from "../common/Title"
+import AppName from "../common/AppName"
 
 function SplashScreen({ navigation }) {
 
@@ -43,7 +43,7 @@ function SplashScreen({ navigation }) {
         >
             <StatusBar barStyle='light-content' />
             <Animated.View style={{ transform: [{ translateY }] }}>
-                <Title text='광운토크' color='white'></Title>
+                <AppName logoVisible={1} descVisible={1}/>
             </Animated.View>
         </SafeAreaView>
     )
