@@ -366,6 +366,7 @@ const useGlobal = create((set, get) => ({
 	//---------------------
 
 	requestList: null,
+	friendList: null,
 
 	requestAccept: (userid) => {
 		const socket = get().socket

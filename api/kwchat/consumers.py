@@ -153,7 +153,6 @@ class ChatConsumer(WebsocketConsumer):
 		# Send back to the requestor
 		self.send_group(user.username, 'message.list', data)
 
-
 	def receive_message_send(self, data):
 		user = self.scope['user']
 		connectionId = data.get('connectionId')
@@ -217,7 +216,7 @@ class ChatConsumer(WebsocketConsumer):
 		userid = data.get('userid')
 		# Fetch connection object
 		try:
-			connection = Connectino.objects.get(
+			connection = Connection.objects.get(
 				sender_userid=userid,
 				receiver=self.scope['user']
 			)
@@ -307,7 +306,7 @@ class ChatConsumer(WebsocketConsumer):
 				Connection.objects.filter(
 					Q(sender=self.scope['user'], receiver=OuterRef('id')) | 
 					Q(receiver=self.scope['user'], sender=OuterRef('id')),
-					accetped=True
+					accepted=True
 				)
 			),
 		)

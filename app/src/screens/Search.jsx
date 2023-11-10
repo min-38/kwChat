@@ -12,9 +12,10 @@ import {
 import Empty from "../common/Empty"
 import Thumbnail from "../common/Thumbnail"
 import useGlobal from "../core/global"
-// import Cell from "../common/Cell"
+import Cell from "../common/Cell"
 
 function SearchButton({ user }) {
+	// Add tick if user is already  connected
 	if (user.status === 'connected') {
 		return  (
 			<FontAwesomeIcon
@@ -39,12 +40,12 @@ function SearchButton({ user }) {
 			data.onPress = () => requestConnect(user.userid)
 			break
 		case 'pending-them':
-			data.text = '전송함'
+			data.text = '요청함'
 			data.disabled = true
 			data.onPress = () => {}
 			break
 		case 'pending-me':
-			data.text = 'Accept'
+			data.text = '친구'
 			data.disabled = false
 			data.onPress = () => {}
 			break
@@ -77,7 +78,6 @@ function SearchButton({ user }) {
 }
 
 function SearchRow({ user }) {
-
 	return (
 		<Cell>
 			<Thumbnail
@@ -101,19 +101,24 @@ function SearchRow({ user }) {
 				</Text>
 				<Text
 					style={{
-						color: '#606060',
+						fontSize: 20,
+						marginBottom: 4
 					}}
 				>
 					{user.username}
+				</Text>
+				<Text
+					style={{ 
+						color: '#606060',
+					}}
+				>
+					@{user.userid}
 				</Text>
 			</View>
 			<SearchButton user={user} />
 		</Cell>
 	)
 }
-
-
-
 
 function SearchScreen() {
 	const [query, setQuery] = useState('')
@@ -166,14 +171,12 @@ function SearchScreen() {
 				<Empty
 					icon='magnifying-glass'
 					message='Search for friends'
-					type='find'
 					centered={false}
 				/>
 			) : searchList.length === 0 ? (
 				<Empty
 					icon='triangle-exclamation'
 					message={'No users found for "' + query + '"'}
-					type='find'
 					centered={false}
 				/>
 			) : (
