@@ -50,6 +50,9 @@ class ChatConsumer(WebsocketConsumer):
 		# 유저 검색 / 유저 필터링
 		if data_source == 'search':
 			self.receive_search(data)
+		# 친구 요청 수락
+		elif data_source == 'request.accept':
+			self.receive_request_accept(data)
 		# 친구 요청
 		elif data_source == 'request.connect':
 			self.receive_request_connect(data)
@@ -59,6 +62,36 @@ class ChatConsumer(WebsocketConsumer):
 		# 프로필 사진 업로드
 		elif data_source == 'thumbnail':
 			self.receive_thumbnail(data)
+
+	def receive_request_accept(self, data):
+		userid = data.get('userid')
+		# Fetch connection object
+		try:
+			connection = Connectino.objects.get(
+				sender_userid=userid,
+				receiver=self.scope['user']
+			)
+		except Connection.DoesNotExist:
+			print('Error: connection doesn\'t exists')
+			return
+		# Update the connection
+		connection.accepted = True
+		connection.save()
+
+		serialized = RequestSerializer(connection)
+		# Send accepted request to sender
+		self.send_group(
+			connection.sender.userid, 'request.accept', serialized.data
+		)
+		
+		# Send back to sender
+		self.send_group(
+			connection.sender.userid, 'request.connect', serialized.data
+		)
+		# Send to receiver
+		self.send_group(
+			connection.receiver.userid, 'request.connect', serialized.data
+		)
 
 	def receive_request_connect(self, data):
 		userid = data.get('userid')

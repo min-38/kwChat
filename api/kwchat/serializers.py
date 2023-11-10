@@ -50,8 +50,8 @@ class SearchSerializer(UserSerializer):
 	class Meta:
 		model = User
 		fields = [
+			'userid',
 			'username',
-			'name',
 			'thumbnail',
 			'status'
 		]

@@ -7,13 +7,58 @@ import utils from './utils'
 //   Socket receive message handlers
 //-------------------------------------
 
+function responseRequestAccept(set, get, connection) {
+	const user = get().user
+	// If I was the one that accepted the request, remove 
+	// request from the  requestList
+	if (user.userid === connection.receiver.userid) {
+		const requestList = [...get().requestList]
+		const requestIndex = requestList.findIndex(
+			request => request.id === connection.id
+		)
+		if (requestIndex >= 0) {
+			requestList.splice(requestIndex, 1)
+			set((state) => ({
+				requestList: requestList
+			}))
+		}
+	} 
+	// If the corresponding user is contained within the  
+	// searchList for the  acceptor or the  acceptee, update 
+	// the state of the searchlist item
+	const sl = get().searchList
+	if (sl === null) {
+		return
+	}
+	const searchList = [...sl]
+
+	let  searchIndex = -1
+	// If this user  accepted
+	if (user.userid === connection.receiver.userid) {
+		searchIndex = searchList.findIndex(
+			user => user.userid === connection.sender.userid
+		)
+	// If the other user accepted
+	} else {
+		searchIndex = searchList.findIndex(
+			user => user.userid === connection.receiver.userid
+		)
+	}
+	if (searchIndex >= 0) {
+		searchList[searchIndex].status = 'connected'
+		set((state) => ({
+			searchList: searchList
+		}))
+	}
+}
+
 function responseRequestConnect(set, get, connection) {
 	const user = get().user
 	// 요청하면 검색 다시 업데이트
 	if (user.userid === connection.sender.userid) {
 		const searchList = get().searchList
 		const searchIndex = searchList.findIndex(
-			request => request.username === connection.receiver.userid
+			request => request.userid === connection.receiver.userid
 		)
 		if (searchIndex >= 0) {
 			searchList[searchIndex].status = ''
@@ -146,6 +191,7 @@ const useGlobal = create((set, get) => ({
 			utils.log('onmessage:', parsed)
 
 			const responses = {
+				'request.accept': responseRequestAccept,
 				'request.connect': responseRequestConnect,
 				'request.list': responseRequestList,
 				'search'		 : responseSearch,
@@ -206,19 +252,19 @@ const useGlobal = create((set, get) => ({
 
 	requestList: null,
 
-	requestAccept: (username) => {
+	requestAccept: (userid) => {
 		const socket = get().socket
 		socket.send(JSON.stringify({
 			source: 'request.accept',
-			username: username
+			userid: userid
 		}))
 	},
 
-	requestConnect: (username) => {
+	requestConnect: (userid) => {
 		const socket = get().socket
 		socket.send(JSON.stringify({
 			source: 'request.connect',
-			username: username
+			userid: userid
 		}))
 	},
 

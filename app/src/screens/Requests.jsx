@@ -24,7 +24,7 @@ function RequestAccept({ item }) {
 				alignItems: 'center',
 				justifyContent: 'center'
 			}}
-			onPress={() => requestAccept(item.sender.username)}
+			onPress={() => requestAccept(item.sender.userid)}
 		>
 			<Text style={{ color: 'white', fontWeight: 'bold' }}>Accept</Text>
 		</TouchableOpacity>

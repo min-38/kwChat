@@ -36,7 +36,7 @@ function SearchButton({ user }) {
 		case 'no-connection':
 			data.text = '친구 요청'
 			data.disabled = false
-			data.onPress = () => requestConnect(user.username)
+			data.onPress = () => requestConnect(user.userid)
 			break
 		case 'pending-them':
 			data.text = '전송함'
@@ -182,7 +182,7 @@ function SearchScreen() {
 					renderItem={({ item }) => (
 						<SearchRow user={item} />
 					)}
-					keyExtractor={item => item.username}
+					keyExtractor={item => item.userid}
 				/>
 			)}
 		</SafeAreaView>
