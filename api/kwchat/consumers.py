@@ -9,7 +9,13 @@ from django.db.models.functions import Coalesce
 
 from .models import User, Connection, Message
 
-from .serializers import UserSerializer, SearchSerializer, RequestSerializer
+from .serializers import (
+	UserSerializer,
+	SearchSerializer,
+	RequestSerializer,
+	FriendSerializer,
+	MessageSerializer
+)
 
 class ChatConsumer(WebsocketConsumer):
 
@@ -50,9 +56,15 @@ class ChatConsumer(WebsocketConsumer):
 		# 친구 요청 수락
 		if data_source == 'friend.list':
 			self.receive_friend_list(data)
-		# 유저 검색 / 유저 필터링
-		elif data_source == 'search':
-			self.receive_search(data)
+		# 메세지 목록
+		elif data_source == 'message.list':
+			self.receive_message_list(data)
+		# 메세지 전송
+		elif data_source == 'message.send':
+			self.receive_message_send(data)
+		# 유저가 메시지를 작성하고 있을 때
+		elif data_source == 'message.type':
+			self.receive_message_type(data)
 		# 친구 요청 수락
 		elif data_source == 'request.accept':
 			self.receive_request_accept(data)
@@ -62,9 +74,13 @@ class ChatConsumer(WebsocketConsumer):
 		# 친구 요청 리스트
 		elif data_source == 'request.list':
 			self.receive_request_list(data)
+		# 유저 검색 / 유저 필터링
+		elif data_source == 'search':
+			self.receive_search(data)
 		# 프로필 사진 업로드
 		elif data_source == 'thumbnail':
 			self.receive_thumbnail(data)
+
 
 	def receive_friend_list(self, data):
 		user = self.scope['user']
@@ -90,6 +106,112 @@ class ChatConsumer(WebsocketConsumer):
 			many=True)
 		# Send data back to requesting user
 		self.send_group(user.userid, 'friend.list', serialized.data)
+
+
+	def receive_message_list(self, data):
+		user = self.scope['user']
+		connectionId = data.get('connectionId')
+		page = data.get('page')
+		page_size = 15
+		try:
+			connection = Connection.objects.get(id=connectionId)
+		except Connection.DoesNotExist:
+			print('Error: couldnt find connection')
+			return
+		# Get messages
+		messages = Message.objects.filter(
+			connection=connection
+		).order_by('-created')[page * page_size:(page + 1) * page_size]
+		# Serialized message
+		serialized_messages = MessageSerializer(
+			messages,
+			context={ 
+				'user': user 
+			}, 
+			many=True
+		)
+		# Get recipient friend
+		recipient = connection.sender
+		if connection.sender == user:
+			recipient = connection.receiver
+		
+		# Serialize friend
+		serialized_friend = UserSerializer(recipient)
+
+		# Count the total number of messages for this connection
+		messages_count = Message.objects.filter(
+			connection=connection
+		).count()
+
+		next_page = page + 1 if messages_count > (page + 1 ) * page_size else None
+
+		data = {
+			'messages': serialized_messages.data,
+			'next': next_page,
+			'friend': serialized_friend.data
+		}
+		# Send back to the requestor
+		self.send_group(user.username, 'message.list', data)
+
+
+	def receive_message_send(self, data):
+		user = self.scope['user']
+		connectionId = data.get('connectionId')
+		message_text = data.get('message')
+		try:
+			connection = Connection.objects.get(id=connectionId)
+		except Connection.DoesNotExist:
+			print('Error: couldnt find connection')
+			return
+		
+		message = Message.objects.create(
+			connection=connection,
+			user=user,
+			text=message_text
+		)
+
+		# Get recipient friend
+		recipient = connection.sender
+		if connection.sender == user:
+			recipient = connection.receiver
+
+		# Send new message back to sender
+		serialized_message = MessageSerializer(
+			message,
+			context={
+				'user': user
+			}
+		)
+		serialized_friend = UserSerializer(recipient)
+		data = {
+			'message': serialized_message.data,
+			'friend': serialized_friend.data
+		}
+		self.send_group(user.username, 'message.send', data)
+
+		# Send new message to receiver
+		serialized_message = MessageSerializer(
+			message,
+			context={
+				'user': recipient
+			}
+		)
+		serialized_friend = UserSerializer(user)
+		data = {
+			'message': serialized_message.data,
+			'friend': serialized_friend.data
+		}
+		self.send_group(recipient.username, 'message.send', data)
+
+
+	def receive_message_type(self, data):
+		user = self.scope['user']
+		recipient_username = data.get('username')
+		data = {
+			'username': user.username
+		}
+		self.send_group(recipient_username, 'message.type', data)
+
 
 	def receive_request_accept(self, data):
 		userid = data.get('userid')
@@ -145,6 +267,7 @@ class ChatConsumer(WebsocketConsumer):
 			connection.receiver.userid, 'request.connect', serialized.data
 		)
 
+
 	def receive_request_list(self, data):
 		user = self.scope['user']
 		# 이 유저에 대한 모든 연결을 가져옴
@@ -155,6 +278,7 @@ class ChatConsumer(WebsocketConsumer):
 		serialized = RequestSerializer(connections, many=True)
 		
 		self.send_group(user.userid, 'request.list', serialized.data)
+
 
 	def receive_search(self, data):
 		query = data.get('query')
@@ -187,11 +311,11 @@ class ChatConsumer(WebsocketConsumer):
 				)
 			),
 		)
-
 		# serialize results
 		serialized = SearchSerializer(users, many=True)
 		# Send search results back to this user
 		self.send_group(self.userid, 'search', serialized.data)
+
 
 	def receive_thumbnail(self, data):
 		user = self.scope['user']
@@ -213,6 +337,7 @@ class ChatConsumer(WebsocketConsumer):
 	#   Catch/all broadcast to client helpers
 	#--------------------------------------------
 
+
 	def send_group(self, group, source, data):
 		response = {
 			'type': 'broadcast_group',
@@ -222,6 +347,7 @@ class ChatConsumer(WebsocketConsumer):
 		async_to_sync(self.channel_layer.group_send)(
 			group, response
 		)
+
 
 	def broadcast_group(self, data):
 		'''

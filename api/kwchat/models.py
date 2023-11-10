@@ -9,6 +9,7 @@ def upload_thumbnail(instance, filename):
 		path = path + '.' + extension
 	return path
 
+
 class User(AbstractUser):
 	USERNAME_FIELD = 'userid'
 	thumbnail = models.ImageField(
@@ -38,6 +39,7 @@ class User(AbstractUser):
 	
     )
 
+
 class Connection(models.Model):
 	sender = models.ForeignKey(
 		User,
@@ -55,6 +57,7 @@ class Connection(models.Model):
 
 	def __str__(self):
 		return self.sender.userid + ' -> ' + self.receiver.userid
+
 
 class Message(models.Model):
 	connection = models.ForeignKey(

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Connection
+from .models import User, Connection, Message
 
 class SignUpSerializer(serializers.ModelSerializer):
     
@@ -16,11 +16,12 @@ class SignUpSerializer(serializers.ModelSerializer):
                 'write_only': True
             }
         }
-    
+
+
     def create(self, validated_data):
-        userid   = validated_data['userid'].lower()
-        username = validated_data['username'].lower()
-        email = validated_data['email'].lower()
+        userid   = validated_data['userid'].lower() # 유저 아이디
+        username = validated_data['username'].lower() # 유저 이름
+        email = validated_data['email'].lower() # 유저 이메일
 
         # 유저 생성
         user = User.objects.create(
@@ -33,8 +34,8 @@ class SignUpSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+
 class UserSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = User
         fields = [
@@ -43,6 +44,7 @@ class UserSerializer(serializers.ModelSerializer):
             'email',
             'thumbnail',
         ]
+
 
 class SearchSerializer(UserSerializer):
 	status = serializers.SerializerMethodField()
@@ -55,7 +57,8 @@ class SearchSerializer(UserSerializer):
 			'thumbnail',
 			'status'
 		]
-	
+
+
 	def get_status(self, obj):
 		if obj.pending_them:
 			return 'pending-them'
@@ -64,6 +67,8 @@ class SearchSerializer(UserSerializer):
 		elif obj.connected:
 			return 'connected'
 		return 'no-connection'
+
+
 
 class RequestSerializer(serializers.ModelSerializer):
 	sender = UserSerializer()
@@ -77,6 +82,7 @@ class RequestSerializer(serializers.ModelSerializer):
 			'receiver',
 			'created'
 		]
+
 
 class FriendSerializer(serializers.ModelSerializer):
 	friend = serializers.SerializerMethodField()
@@ -92,6 +98,7 @@ class FriendSerializer(serializers.ModelSerializer):
 			'updated'
 		]
 
+
 	def get_friend(self, obj):
 		# If Im the sender
 		if self.context['user'] == obj.sender:
@@ -102,11 +109,13 @@ class FriendSerializer(serializers.ModelSerializer):
 		else:
 			print('Error: No user found in friendserializer')
 
+
 	def get_preview(self, obj):
 		default = 'New connection'
 		if not hasattr(obj, 'latest_text'):
 			return default
 		return obj.latest_text or default
+
 
 	def get_updated(self, obj):
 		if not hasattr(obj, 'latest_created'):
@@ -114,3 +123,19 @@ class FriendSerializer(serializers.ModelSerializer):
 		else:
 			date = obj.latest_created or obj.updated
 		return date.isoformat()
+
+
+class MessageSerializer(serializers.ModelSerializer):
+	is_me = serializers.SerializerMethodField()
+
+	class Meta:
+		model = Message
+		fields = [
+			'id',
+			'is_me',
+			'text',
+			'created'
+		]
+
+	def get_is_me(self, obj):
+		return self.context['user'] == obj.user

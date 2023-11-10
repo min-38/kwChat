@@ -20,6 +20,52 @@ function responseFriendNew(set, get, friend) {
 	}))
 }
 
+function responseMessageList(set, get, data) {
+	set((state) => ({
+		messagesList: [...get().messagesList, ...data.messages],
+		messagesNext: data.next,
+		messagesUsername: data.friend.username
+	}))
+}
+
+function responseMessageSend(set, get, data) {
+	const username = data.friend.username
+	// Move friendList item for this friend to the start of 
+	// list, update the preview text and update the time stamp
+	const friendList = [...get().friendList]
+	const friendIndex = friendList.findIndex(
+		item => item.friend.username === username
+	)
+	if (friendIndex >= 0) {
+		const item = friendList[friendIndex]
+		item.preview = data.message.text
+		item.updated = data.message.created
+		friendList.splice(friendIndex, 1)
+		friendList.unshift(item)
+		set((state) => ({
+			friendList: friendList
+		}))
+	}
+	// If the message data does not belong to this friend then 
+	// dont update the message list, as a fresh messageList will 
+	// be loaded the next time the user opens the correct chat window
+	if (username !== get().messagesUsername) {
+		return
+	}
+	const messagesList = [data.message, ...get().messagesList]
+	set((state) => ({
+		messagesList: messagesList,
+		messagesTyping: null
+	}))
+}
+
+function responseMessageType(set, get, data) {
+	if (data.username !== get().messagesUsername) return
+	set((state) => ({
+		messagesTyping: new Date()
+	}))
+}
+
 function responseRequestAccept(set, get, connection) {
 	const user = get().user
 	// If I was the one that accepted the request, remove 
@@ -169,7 +215,6 @@ const useGlobal = create((set, get) => ({
 			user: user
 		}))
 	},
-
 	logout: () => {
 		secure.wipe()
 		set((state) => ({
@@ -209,12 +254,16 @@ const useGlobal = create((set, get) => ({
 			utils.log('onmessage:', parsed)
 
 			const responses = {
-				'friend.list'		: responseFriendList,
-				'request.accept'	: responseRequestAccept,
-				'request.connect'	: responseRequestConnect,
-				'request.list'		: responseRequestList,
-				'search'		 	: responseSearch,
-				'thumbnail'		 	: responseThumbnail
+				'friend.list':     responseFriendList,
+				'friend.new':      responseFriendNew,
+				'message.list':    responseMessageList,
+				'message.send':    responseMessageSend,
+				'message.type':    responseMessageType,
+				'request.accept':  responseRequestAccept,
+				'request.connect': responseRequestConnect,
+				'request.list':    responseRequestList,
+				'search':          responseSearch,
+				'thumbnail':       responseThumbnail
 			}
 			const resp = responses[parsed.source]
 			if (!resp) {
@@ -266,6 +315,53 @@ const useGlobal = create((set, get) => ({
 	},
 
 	//---------------------
+	//     Messages
+	//---------------------
+
+	messagesList: [],
+	messagesNext: null,
+	messagesTyping: null,
+	messagesUsername: null,
+
+	messageList: (connectionId, page=0) => {
+		if (page === 0) {
+			set((state) => ({
+				messagesList: [],
+				messagesNext: null,
+				messagesTyping: null,
+				messagesUsername: null
+			}))
+		} else {
+			set((state) => ({
+				messagesNext: null
+			}))
+		}
+		const socket = get().socket
+		socket.send(JSON.stringify({
+			source: 'message.list',
+			connectionId: connectionId,
+			page: page
+		}))
+	},
+
+	messageSend: (connectionId, message) => {
+		const socket = get().socket
+		socket.send(JSON.stringify({
+			source: 'message.send',
+			connectionId: connectionId,
+			message: message
+		}))
+	},
+
+	messageType: (username) => {
+		const socket = get().socket
+		socket.send(JSON.stringify({
+			source: 'message.type',
+			username: username
+		}))
+	},
+
+	//---------------------
 	//     Requests
 	//---------------------
 
@@ -300,8 +396,5 @@ const useGlobal = create((set, get) => ({
 		}))
 	}
 }))
-
-
-
 
 export default useGlobal

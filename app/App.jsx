@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import {
-  SafeAreaView, StatusBar, Text,
+	StatusBar
 } from 'react-native'
 
 import './src/core/fontawesome'
@@ -16,7 +16,6 @@ import SearchScreen from './src/screens/Search'
 import MessagesScreen from './src/screens/Message'
 
 import useGlobal from './src/core/global'
-
 
 const LightTheme = {
 	...DefaultTheme,

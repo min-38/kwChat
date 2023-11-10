@@ -2,3 +2,5 @@
 *.sqlite3
 
 api/core/settings.py
+
+*.rdb
