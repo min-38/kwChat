@@ -7,6 +7,19 @@ import utils from './utils'
 //   Socket receive message handlers
 //-------------------------------------
 
+function responseFriendList(set, get, friendList) {
+	set((state) => ({
+		friendList: friendList
+	}))
+}
+
+function responseFriendNew(set, get, friend) {
+	const friendList = [friend, ...get().friendList]
+	set((state) => ({
+		friendList: friendList
+	}))
+}
+
 function responseRequestAccept(set, get, connection) {
 	const user = get().user
 	// If I was the one that accepted the request, remove 
@@ -179,8 +192,13 @@ const useGlobal = create((set, get) => ({
 
 		socket.onopen = () => {
 			utils.log('socket.onopen')
+			
 			socket.send(JSON.stringify({
 				source: 'request.list'
+			}))
+
+			socket.send(JSON.stringify({
+				source: 'friend.list'
 			}))
 		}
 		socket.onmessage = (event) => {
@@ -191,11 +209,12 @@ const useGlobal = create((set, get) => ({
 			utils.log('onmessage:', parsed)
 
 			const responses = {
-				'request.accept': responseRequestAccept,
-				'request.connect': responseRequestConnect,
-				'request.list': responseRequestList,
-				'search'		 : responseSearch,
-				'thumbnail'		 : responseThumbnail
+				'friend.list'		: responseFriendList,
+				'request.accept'	: responseRequestAccept,
+				'request.connect'	: responseRequestConnect,
+				'request.list'		: responseRequestList,
+				'search'		 	: responseSearch,
+				'thumbnail'		 	: responseThumbnail
 			}
 			const resp = responses[parsed.source]
 			if (!resp) {

@@ -47,8 +47,11 @@ class ChatConsumer(WebsocketConsumer):
 		# Pretty print  python dict
 		print('receive', json.dumps(data, indent=2))
 
+		# 친구 요청 수락
+		if data_source == 'friend.list':
+			self.receive_friend_list(data)
 		# 유저 검색 / 유저 필터링
-		if data_source == 'search':
+		elif data_source == 'search':
 			self.receive_search(data)
 		# 친구 요청 수락
 		elif data_source == 'request.accept':
@@ -62,6 +65,31 @@ class ChatConsumer(WebsocketConsumer):
 		# 프로필 사진 업로드
 		elif data_source == 'thumbnail':
 			self.receive_thumbnail(data)
+
+	def receive_friend_list(self, data):
+		user = self.scope['user']
+		# Latest message subquery
+		latest_message = Message.objects.filter(
+			connection=OuterRef('id')
+		).order_by('-created')[:1]
+		# Get connections for user
+		connections = Connection.objects.filter(
+			Q(sender=user) | Q(receiver=user),
+			accepted=True
+		).annotate(
+			latest_text   =latest_message.values('text'),
+			latest_created=latest_message.values('created')
+		).order_by(
+			Coalesce('latest_created', 'updated').desc()
+		)
+		serialized = FriendSerializer(
+			connections, 
+			context={ 
+				'user': user 
+			}, 
+			many=True)
+		# Send data back to requesting user
+		self.send_group(user.userid, 'friend.list', serialized.data)
 
 	def receive_request_accept(self, data):
 		userid = data.get('userid')
