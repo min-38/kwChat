@@ -52,9 +52,9 @@ function App() {
 					</>
 				) : (
 					<>
-                        <Stack.Screen name="Home" component={HomeScreen} />
-						<Stack.Screen name="Search" component={SearchScreen} />
-						<Stack.Screen name="Messages" component={MessagesScreen} />
+                        <Stack.Screen name="Home" component={HomeScreen} options={{ title: '' }}/>
+						<Stack.Screen name="Search" component={SearchScreen} options={{ title: '친구 찾기' }}/>
+						<Stack.Screen name="Messages" component={MessagesScreen} options={{ title: '채팅' }}/>
 					</>
 				)}
             </Stack.Navigator>

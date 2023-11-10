@@ -30,7 +30,6 @@ function HomeScreen({ navigation }) {
 	}, [])
 
     function onSearch() {
-        console.log("333")
 		navigation.navigate('Search')
 	}
     
