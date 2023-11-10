@@ -261,3 +261,4 @@ google-services.json
 api/core/settings.py
 
 *.rdb
+venv/*
