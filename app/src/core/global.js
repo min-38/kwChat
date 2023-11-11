@@ -24,17 +24,17 @@ function responseMessageList(set, get, data) {
 	set((state) => ({
 		messagesList: [...get().messagesList, ...data.messages],
 		messagesNext: data.next,
-		messagesUsername: data.friend.username
+		messagesUserId: data.friend.userid
 	}))
 }
 
 function responseMessageSend(set, get, data) {
-	const username = data.friend.username
+	const userid = data.friend.userid
 	// Move friendList item for this friend to the start of 
 	// list, update the preview text and update the time stamp
 	const friendList = [...get().friendList]
 	const friendIndex = friendList.findIndex(
-		item => item.friend.username === username
+		item => item.friend.userid === userid
 	)
 	if (friendIndex >= 0) {
 		const item = friendList[friendIndex]
@@ -49,7 +49,7 @@ function responseMessageSend(set, get, data) {
 	// If the message data does not belong to this friend then 
 	// dont update the message list, as a fresh messageList will 
 	// be loaded the next time the user opens the correct chat window
-	if (username !== get().messagesUsername) {
+	if (userid !== get().messagesUserId) {
 		return
 	}
 	const messagesList = [data.message, ...get().messagesList]
@@ -60,7 +60,7 @@ function responseMessageSend(set, get, data) {
 }
 
 function responseMessageType(set, get, data) {
-	if (data.username !== get().messagesUsername) return
+	if (data.userid !== get().messagesUserId) return
 	set((state) => ({
 		messagesTyping: new Date()
 	}))
@@ -68,6 +68,85 @@ function responseMessageType(set, get, data) {
 
 function responseRequestAccept(set, get, connection) {
 	const user = get().user
+	// If I was the one that accepted the request, remove 
+	// request from the  requestList
+	if (user.userid === connection.receiver.userid) {
+		const requestList = [...get().requestList]
+		const requestIndex = requestList.findIndex(
+			request => request.id === connection.id
+		)
+		if (requestIndex >= 0) {
+			requestList.splice(requestIndex, 1)
+			set((state) => ({
+				requestList: requestList
+			}))
+		}
+	}
+	// If the corresponding user is contained within the  
+	// searchList for the  acceptor or the  acceptee, update 
+	// the state of the searchlist item
+	const sl = get().searchList
+	if (sl === null) {
+		return
+	}
+	const searchList = [...sl]
+
+	let  searchIndex = -1
+	// If this user  accepted
+	if (user.userid === connection.receiver.userid) {
+		searchIndex = searchList.findIndex(
+			user => user.userid === connection.sender.userid
+		)
+	// If the other user accepted
+	} else {
+		searchIndex = searchList.findIndex(
+			user => user.userid === connection.receiver.userid
+		)
+	}
+	if (searchIndex >= 0) {
+		searchList[searchIndex].status = 'connected'
+		set((state) => ({
+			searchList: searchList
+		}))
+	}
+}
+
+function responseRequestConnect(set, get, connection) {
+	const user = get().user
+	// If i was the one that made the connect request, 
+	// update the search list row
+	if (user.userid === connection.sender.userid) {
+		const searchList = [...get().searchList]
+		const searchIndex = searchList.findIndex(
+			request => request.userid === connection.receiver.userid
+		)
+		if (searchIndex >= 0) {
+			searchList[searchIndex].status = 'pending-them'
+			set((state) => ({
+				searchList: searchList
+			}))
+		}
+	// If they were the one  that sent the connect 
+	// request, add request to request list
+	} else {
+		const requestList = [...get().requestList]
+		const requestIndex = requestList.findIndex(
+			request => request.sender.userid === connection.sender.userid
+		)
+		if (requestIndex === -1) {
+			requestList.unshift(connection)
+			set((state) => ({
+				requestList: requestList
+			}))
+		}
+	}
+}
+
+
+function responseRequestCancel(set, get, connection) {
+	// 요청한 유저 받아오기
+	const user = get().user
+
 	// If I was the one that accepted the request, remove 
 	// request from the  requestList
 	if (user.userid === connection.receiver.userid) {
@@ -108,34 +187,6 @@ function responseRequestAccept(set, get, connection) {
 		set((state) => ({
 			searchList: searchList
 		}))
-	}
-}
-
-function responseRequestConnect(set, get, connection) {
-	const user = get().user
-	// 요청하면 검색 다시 업데이트
-	if (user.userid === connection.sender.userid) {
-		const searchList = get().searchList
-		const searchIndex = searchList.findIndex(
-			request => request.userid === connection.receiver.userid
-		)
-		if (searchIndex >= 0) {
-			searchList[searchIndex].status = ''
-			set((state) => ({
-				searchList: searchList
-			}))
-		}
-	} else {
-		const requestList = [...get().requestList]
-		const requestIndex = requestList.findIndex(
-			request => request.sender.userid === connection.sender.userid
-		)
-		if(requestIndex === -1) {
-			requestList.unshift(connection)
-			set((state) => ({
-				requestList: requestList
-			}))
-		}
 	}
 }
 
@@ -261,6 +312,7 @@ const useGlobal = create((set, get) => ({
 				'message.type':    responseMessageType,
 				'request.accept':  responseRequestAccept,
 				'request.connect': responseRequestConnect,
+				'request.cancel':  responseRequestCancel,
 				'request.list':    responseRequestList,
 				'search':          responseSearch,
 				'thumbnail':       responseThumbnail
@@ -321,7 +373,7 @@ const useGlobal = create((set, get) => ({
 	messagesList: [],
 	messagesNext: null,
 	messagesTyping: null,
-	messagesUsername: null,
+	messagesUserId: null,
 
 	messageList: (connectionId, page=0) => {
 		if (page === 0) {
@@ -329,7 +381,7 @@ const useGlobal = create((set, get) => ({
 				messagesList: [],
 				messagesNext: null,
 				messagesTyping: null,
-				messagesUsername: null
+				messagesUserId: null
 			}))
 		} else {
 			set((state) => ({
@@ -353,11 +405,11 @@ const useGlobal = create((set, get) => ({
 		}))
 	},
 
-	messageType: (username) => {
+	messageType: (userid) => {
 		const socket = get().socket
 		socket.send(JSON.stringify({
 			source: 'message.type',
-			username: username
+			userid: userid
 		}))
 	},
 
@@ -380,6 +432,14 @@ const useGlobal = create((set, get) => ({
 		const socket = get().socket
 		socket.send(JSON.stringify({
 			source: 'request.connect',
+			userid: userid
+		}))
+	},
+
+	requestCancel: (userid) => {
+		const socket = get().socket
+		socket.send(JSON.stringify({
+			source: 'request.cancel',
 			userid: userid
 		}))
 	},

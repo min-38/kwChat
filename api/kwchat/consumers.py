@@ -28,7 +28,7 @@ class ChatConsumer(WebsocketConsumer):
 		self.userid = user.userid
 		# self.userid = user.userid
 
-		# Join this user to a group with their username
+		# Join this user to a group with their userid
 		async_to_sync(self.channel_layer.group_add)(
 			self.userid, self.channel_name
 			# self.userid, self.channel_name
@@ -151,7 +151,7 @@ class ChatConsumer(WebsocketConsumer):
 			'friend': serialized_friend.data
 		}
 		# Send back to the requestor
-		self.send_group(user.username, 'message.list', data)
+		self.send_group(user.userid, 'message.list', data)
 
 	def receive_message_send(self, data):
 		user = self.scope['user']
@@ -186,7 +186,7 @@ class ChatConsumer(WebsocketConsumer):
 			'message': serialized_message.data,
 			'friend': serialized_friend.data
 		}
-		self.send_group(user.username, 'message.send', data)
+		self.send_group(user.userid, 'message.send', data)
 
 		# Send new message to receiver
 		serialized_message = MessageSerializer(
@@ -200,16 +200,16 @@ class ChatConsumer(WebsocketConsumer):
 			'message': serialized_message.data,
 			'friend': serialized_friend.data
 		}
-		self.send_group(recipient.username, 'message.send', data)
+		self.send_group(recipient.userid, 'message.send', data)
 
 
 	def receive_message_type(self, data):
 		user = self.scope['user']
-		recipient_username = data.get('username')
+		recipient_userid = data.get('userid')
 		data = {
-			'username': user.username
+			'userid': user.userid
 		}
-		self.send_group(recipient_username, 'message.type', data)
+		self.send_group(recipient_userid, 'message.type', data)
 
 
 	def receive_request_accept(self, data):
@@ -217,7 +217,7 @@ class ChatConsumer(WebsocketConsumer):
 		# Fetch connection object
 		try:
 			connection = Connection.objects.get(
-				sender_userid=userid,
+				sender__userid=userid,
 				receiver=self.scope['user']
 			)
 		except Connection.DoesNotExist:

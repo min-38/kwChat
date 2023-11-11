@@ -28,17 +28,18 @@ function FriendRow({ navigation, item }) {
 							marginBottom: 4
 						}}
 					>
-						{item.friend.name}
+						{item.friend.username}
 					</Text>
 					<Text
 						style={{
 							color: '#606060',
 						}}
 					>
-						{item.preview} <Text style={{ color: '#909090', fontSize: 13 }}>
+						{item.preview}
+					</Text>
+					<Text style={{ color: '#909090', fontSize: 13 }}>
 							{utils.formatTime(item.updated)}
 						</Text>
-					</Text>
 				</View>
 			</Cell>
 		</TouchableOpacity>
@@ -58,7 +59,7 @@ function FriendsScreen({ navigation }) {
 	// Show empty if no requests
 	if (friendList.length === 0) {
 		return (
-			<Empty icon='inbox' message='No messages yet' />
+			<Empty icon='face-sad-tear' message='친구가 없어요' />
 		)
 	}
 

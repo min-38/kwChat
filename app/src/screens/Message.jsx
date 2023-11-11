@@ -279,7 +279,7 @@ function MessagesScreen({ navigation, route }) {
 
 	function onType(value) {
 		setMessage(value)
-		messageType(friend.username)
+		messageType(friend.userid)
 	}
 
 	return (
