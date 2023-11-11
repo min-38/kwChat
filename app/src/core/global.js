@@ -81,7 +81,7 @@ function responseRequestAccept(set, get, connection) {
 				requestList: requestList
 			}))
 		}
-	}
+	} 
 	// If the corresponding user is contained within the  
 	// searchList for the  acceptor or the  acceptee, update 
 	// the state of the searchlist item
@@ -312,7 +312,6 @@ const useGlobal = create((set, get) => ({
 				'message.type':    responseMessageType,
 				'request.accept':  responseRequestAccept,
 				'request.connect': responseRequestConnect,
-				'request.cancel':  responseRequestCancel,
 				'request.list':    responseRequestList,
 				'search':          responseSearch,
 				'thumbnail':       responseThumbnail

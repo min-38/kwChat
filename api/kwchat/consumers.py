@@ -232,15 +232,30 @@ class ChatConsumer(WebsocketConsumer):
 		self.send_group(
 			connection.sender.userid, 'request.accept', serialized.data
 		)
-		
-		# Send back to sender
+		# Send accepted request to receiver
 		self.send_group(
-			connection.sender.userid, 'request.connect', serialized.data
+			connection.receiver.userid, 'request.accept', serialized.data
 		)
-		# Send to receiver
+
+		# Send new friend object to sender
+		serialized_friend = FriendSerializer(
+			connection,
+			context={
+				'user': connection.sender
+			}
+		)
 		self.send_group(
-			connection.receiver.userid, 'request.connect', serialized.data
+			connection.sender.userid, 'friend.new', serialized_friend.data)
+
+		# Send new friend object to receiver
+		serialized_friend = FriendSerializer(
+			connection,
+			context={
+				'user': connection.receiver
+			}
 		)
+		self.send_group(
+			connection.receiver.userid, 'friend.new', serialized_friend.data)
 
 	def receive_request_connect(self, data):
 		userid = data.get('userid')

@@ -83,7 +83,6 @@ class RequestSerializer(serializers.ModelSerializer):
 			'created'
 		]
 
-
 class FriendSerializer(serializers.ModelSerializer):
 	friend = serializers.SerializerMethodField()
 	preview = serializers.SerializerMethodField()
@@ -111,7 +110,7 @@ class FriendSerializer(serializers.ModelSerializer):
 
 
 	def get_preview(self, obj):
-		default = 'New connection'
+		default = '(대화 기록 없음)'
 		if not hasattr(obj, 'latest_text'):
 			return default
 		return obj.latest_text or default

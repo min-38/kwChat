@@ -22,7 +22,7 @@ function thumbnail(url) {
 	}
 }
 
-function formatTime(date) {
+function formatTime(date, text = "") {
 	if (date === null)  {
 		return '-'
 	}
@@ -35,26 +35,26 @@ function formatTime(date) {
 	// Minutes
 	if (s < 60*60) {
 		const m = Math.floor(s / 60)
-		return `${m}분 전`
+		return `${text}${m}분 전`
 	}
 	// Hours
 	if (s < 60*60*24)  {
 		const h = Math.floor(s / (60*60))
-		return `${h}시간 전`
+		return `${text}${h}시간 전`
 	}
 	// Days
 	if (s < 60*60*24*7)  {
 		const d = Math.floor(s / (60*60*24))
-		return `${d}일 전`
+		return `${text}${d}일 전`
 	}
 	// Weeks
 	if (s < 60*60*24*7*4)  {
 		const w = Math.floor(s / (60*60*24*7))
-		return `${w}주 전`
+		return `${text}${w}주 전`
 	}
 	// Years
 	const y = Math.floor(s / (60*60*24*365))
-	return `${y}년 전`
+	return `${text}${y}년 전`
 }
 
 export default { log, thumbnail, formatTime }
