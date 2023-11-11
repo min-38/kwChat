@@ -258,6 +258,6 @@ google-services.json
 
 *.sqlite3
 
-api/core/settings.py
+settings.py
 
 *.rdb

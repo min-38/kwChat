@@ -30,6 +30,7 @@ function SearchButton({ user }) {
 	}
 
 	const requestConnect = useGlobal(state => state.requestConnect)
+	const requestCancel = useGlobal(state => state.requestCancel)
 	
 	const data = {}
 
@@ -40,7 +41,9 @@ function SearchButton({ user }) {
 			data.onPress = () => requestConnect(user.userid)
 			break
 		case 'pending-them':
-			data.text = '요청함'
+			data.text = '요청됨'
+			// data.disabled = false
+			// data.onPress = () => requestCancel(user.userid)
 			data.disabled = true
 			data.onPress = () => {}
 			break
@@ -90,15 +93,6 @@ function SearchRow({ user }) {
 					paddingHorizontal: 16
 				}}
 			>
-				<Text
-					style={{
-						fontWeight: 'bold',
-						color: '#202020',
-						marginBottom: 4
-					}}
-				>
-					{user.name}
-				</Text>
 				<Text
 					style={{
 						fontSize: 20,
@@ -170,13 +164,13 @@ function SearchScreen() {
 			{searchList === null ? (
 				<Empty
 					icon='magnifying-glass'
-					message='Search for friends'
+					message='친구를 검색하세요 (이름, 아이디)'
 					centered={false}
 				/>
 			) : searchList.length === 0 ? (
 				<Empty
 					icon='triangle-exclamation'
-					message={'No users found for "' + query + '"'}
+					message={'그런 친구는 없어요 "' + query + '"'}
 					centered={false}
 				/>
 			) : (

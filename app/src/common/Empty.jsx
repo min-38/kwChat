@@ -1,26 +1,8 @@
 const { FontAwesomeIcon } = require("@fortawesome/react-native-fontawesome");
 const { View, Text, Image } = require("react-native");
 
-function Empty({ icon, message, type, centered=true }) {
+function Empty({ icon, message, centered=true }) {
 
-    const picture = type == "request" ?
-        <Image 
-            source={require("../assets/images/cry.png")}
-            style={{ 
-                width: 50, 
-                height: 50,
-                marginBottom: 10
-            }}
-        /> :
-        <FontAwesomeIcon
-            icon={icon}
-            color='#d0d0d0'
-            size={90}
-            style={{
-                marginBottom: 16
-            }}
-        />
-        
 	return (
 		<View
 			style={{
@@ -30,7 +12,14 @@ function Empty({ icon, message, type, centered=true }) {
 				paddingVertical: 120
 			}}
 		>
-			{ picture }
+			<FontAwesomeIcon
+				icon={icon}
+				color='#d0d0d0'
+				size={90}
+				style={{
+					marginBottom: 16
+				}}
+			/>
 			<Text
 				style={{
 					color: '#c3c3c3',
