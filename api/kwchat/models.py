@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
+from django.db import connection
+from django.db import transaction
+from django.utils import timezone
 
 def upload_thumbnail(instance, filename):
 	path = f'thumbnails/{instance.username}'
@@ -8,7 +10,6 @@ def upload_thumbnail(instance, filename):
 	if extension:
 		path = path + '.' + extension
 	return path
-
 
 class User(AbstractUser):
 	USERNAME_FIELD = 'userid'
@@ -58,6 +59,35 @@ class Connection(models.Model):
 	def __str__(self):
 		return self.sender.userid + ' -> ' + self.receiver.userid
 
+class Friend(models.Model):
+	def insertFriend(sender_id, receive_id):
+		cursor = connection.cursor()
+		cursor.execute("INSERT IGNORE INTO kwchat_friend (userid, friendid) VALUES (%s, %s)", [sender_id, receive_id])
+
+		connection.commit()
+		connection.close()
+
+	def getFriends(user_id):
+		cursor = connection.cursor()
+		cursor.execute(
+			"SELECT userid, username, email, thumbnail FROM kwchat_user where id in ((SELECT friendid FROM kwchat_friend where userid = %s))", [user_id]
+		)
+		datas = cursor.fetchall()
+
+		connection.commit()
+		connection.close()
+
+		friends = []
+		for data in datas:
+			row = {
+				'userid': data[0],
+				'username': data[1],
+				'email': data[2],
+				'thumbnail': data[3],
+			}
+			friends.append(row)
+
+		return friends
 
 class Message(models.Model):
 	connection = models.ForeignKey(
@@ -74,4 +104,4 @@ class Message(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
-		return self.user.username + ': ' + self.text
+		return self.user.userid + ': ' + self.text

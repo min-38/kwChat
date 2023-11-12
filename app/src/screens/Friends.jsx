@@ -6,13 +6,12 @@ import Thumbnail from "../common/Thumbnail"
 import utils from "../core/utils"
 
 function FriendRow({ navigation, item }) {
+	console.log(item)
 	return (
-		<TouchableOpacity onPress={() => {
-			navigation.navigate('Messages', item)
-		}}>
+		<TouchableOpacity>
 			<Cell>
 				<Thumbnail
-					url={item.friend.thumbnail}
+					url={item.thumbnail}
 					size={76}
 				/>
 				<View
@@ -28,18 +27,11 @@ function FriendRow({ navigation, item }) {
 							marginBottom: 4
 						}}
 					>
-						{item.friend.username}
+						{item.username}
 					</Text>
-					<Text
-						style={{
-							color: '#606060',
-						}}
-					>
-						{item.preview}
-					</Text>
-					<Text style={{ color: '#909090', fontSize: 13 }}>
-							{utils.formatTime(item.updated)}
-						</Text>
+					{/* <Text style={{ color: '#909090', fontSize: 13 }}>
+						{utils.formatTime(item.updated)}
+					</Text> */}
 				</View>
 			</Cell>
 		</TouchableOpacity>
@@ -69,9 +61,9 @@ function FriendsScreen({ navigation }) {
 			<FlatList
 				data={friendList}
 				renderItem={({ item }) => (
-					<FriendRow navigation={navigation} item={item} />
+					<FriendRow navigation={navigation} item={item}/>
 				)}
-				keyExtractor={item => item.id}
+				keyExtractor={item => item.userid}
 			/>
 		</View>
 	)

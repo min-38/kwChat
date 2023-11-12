@@ -145,7 +145,7 @@ function SearchScreen() {
 						}}
 						value={query}
 						onChangeText={setQuery}
-						placeholder='Search...'
+						placeholder='검색...'
 						placeholderTextColor='#b0b0b0'
 					/>
 					<FontAwesomeIcon

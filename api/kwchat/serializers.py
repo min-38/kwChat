@@ -123,7 +123,6 @@ class FriendSerializer(serializers.ModelSerializer):
 			date = obj.latest_created or obj.updated
 		return date.isoformat()
 
-
 class MessageSerializer(serializers.ModelSerializer):
 	is_me = serializers.SerializerMethodField()
 

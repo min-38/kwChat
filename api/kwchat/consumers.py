@@ -7,7 +7,7 @@ from django.core.files.base import  ContentFile
 from django.db.models import Q, Exists, OuterRef
 from django.db.models.functions import Coalesce
 
-from .models import User, Connection, Message
+from .models import User, Connection, Message, Friend
 
 from .serializers import (
 	UserSerializer,
@@ -26,12 +26,10 @@ class ChatConsumer(WebsocketConsumer):
 			return
 		
 		self.userid = user.userid
-		# self.userid = user.userid
 
 		# Join this user to a group with their userid
 		async_to_sync(self.channel_layer.group_add)(
 			self.userid, self.channel_name
-			# self.userid, self.channel_name
 		)
 		self.accept()
 
@@ -39,7 +37,6 @@ class ChatConsumer(WebsocketConsumer):
 		# Leave room/group
 		async_to_sync(self.channel_layer.group_discard)(
 			self.userid, self.channel_name
-			# self.userid, self.channel_name
 		)
 
 	#-----------------------
@@ -55,7 +52,7 @@ class ChatConsumer(WebsocketConsumer):
 
 		# 친구 요청 수락
 		if data_source == 'friend.list':
-			self.receive_friend_list(data)
+			self.get_friend_list(data)
 		# 메세지 목록
 		elif data_source == 'message.list':
 			self.receive_message_list(data)
@@ -80,7 +77,6 @@ class ChatConsumer(WebsocketConsumer):
 		# 프로필 사진 업로드
 		elif data_source == 'thumbnail':
 			self.receive_thumbnail(data)
-
 
 	def receive_friend_list(self, data):
 		user = self.scope['user']
@@ -107,6 +103,13 @@ class ChatConsumer(WebsocketConsumer):
 		# Send data back to requesting user
 		self.send_group(user.userid, 'friend.list', serialized.data)
 
+	def get_friend_list(self, data):
+		user = self.scope['user']
+		# Get friend list for user
+
+		friendList = Friend.getFriends(user.id)
+		# Send data back to requesting user
+		self.send_group(user.userid, 'friend.list', friendList)
 
 	def receive_message_list(self, data):
 		user = self.scope['user']
@@ -226,6 +229,12 @@ class ChatConsumer(WebsocketConsumer):
 		# Update the connection
 		connection.accepted = True
 		connection.save()
+
+		try:
+			Friend.insertFriend(connection.sender.id, connection.receiver.id)
+			Friend.insertFriend(connection.receiver.id, connection.sender.id)
+		except Exception as e:
+			print(e)
 
 		serialized = RequestSerializer(connection)
 		# Send accepted request to sender

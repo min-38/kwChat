@@ -32,7 +32,7 @@ function HomeScreen({ navigation }) {
     function onSearch() {
 		navigation.navigate('Search')
 	}
-    
+
     return (
         <Tab.Navigator
             screenOptions={({ route, navigation }) => ({
@@ -44,18 +44,18 @@ function HomeScreen({ navigation }) {
 						/>
 					</View>
 				),
-				headerRight: () => (
+				headerRight: () => {
 					<TouchableOpacity
 						onPress={ onSearch }
 					>
-						<FontAwesomeIcon 
+						<FontAwesomeIcon
 							style={{ marginRight: 16 }}
-							icon='magnifying-glass' 
+							icon='user-plus' 
 							size={22} 
 							color='#404040'
 						/>
 					</TouchableOpacity>
-				),
+				},
                 tabBarIcon: ({ focused, color, size }) => {
 					const icons = {
 						Requests: 'bell',
