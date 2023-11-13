@@ -20,6 +20,12 @@ function responseFriendNew(set, get, friend) {
 	}))
 }
 
+function responseChatroomList(set, get, chatroomList) {
+	set((state) => ({
+		chatroomList: chatroomList
+	}))
+}
+
 function responseMessageList(set, get, data) {
 	set((state) => ({
 		messagesList: [...get().messagesList, ...data.messages],
@@ -215,6 +221,9 @@ const useGlobal = create((set, get) => ({
 	//---------------------
 
 	initialized: false,
+	requestList: null,
+	friendList: null,
+	chatroomList: null,
 	
 	init: async () => {
 		const credentials = await secure.get('credentials')
@@ -296,6 +305,10 @@ const useGlobal = create((set, get) => ({
 			socket.send(JSON.stringify({
 				source: 'friend.list'
 			}))
+
+			socket.send(JSON.stringify({
+				source: 'chatroom.list'
+			}))
 		}
 		socket.onmessage = (event) => {
 			// Convert data to javascript object
@@ -307,6 +320,7 @@ const useGlobal = create((set, get) => ({
 			const responses = {
 				'friend.list':     responseFriendList,
 				'friend.new':      responseFriendNew,
+				'chatroom.list':   responseChatroomList,
 				'message.list':    responseMessageList,
 				'message.send':    responseMessageSend,
 				'message.type':    responseMessageType,
@@ -416,9 +430,6 @@ const useGlobal = create((set, get) => ({
 	//     Requests
 	//---------------------
 
-	requestList: null,
-	friendList: null,
-
 	requestAccept: (userid) => {
 		const socket = get().socket
 		socket.send(JSON.stringify({
@@ -454,7 +465,8 @@ const useGlobal = create((set, get) => ({
 			base64: file.base64,
 			filename: file.fileName
 		}))
-	}
+	},
+
 }))
 
 export default useGlobal

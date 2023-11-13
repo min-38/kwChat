@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import RequestsScreen from "./Requests"
 import FriendsScreen from "./Friends"
 import ProfileScreen from "./Profile"
+import ChatroomScreen from "./Chatroom"
 import useGlobal from "../core/global"
 import Thumbnail from "../common/Thumbnail"
 
@@ -18,7 +19,8 @@ function HomeScreen({ navigation }) {
 
     useLayoutEffect(() => {
 		navigation.setOptions({
-			headerShown: false
+			headerShown: false,
+			
 		})
 	}, [])
 
@@ -33,6 +35,10 @@ function HomeScreen({ navigation }) {
 		navigation.navigate('Search')
 	}
 
+	function onCreateChatroom() {
+		navigation.navigate('CreateChatroom')
+	}
+
     return (
         <Tab.Navigator
             screenOptions={({ route, navigation }) => ({
@@ -45,21 +51,39 @@ function HomeScreen({ navigation }) {
 					</View>
 				),
 				headerRight: () => {
-					<TouchableOpacity
-						onPress={ onSearch }
-					>
-						<FontAwesomeIcon
-							style={{ marginRight: 16 }}
-							icon='user-plus' 
-							size={22} 
-							color='#404040'
-						/>
-					</TouchableOpacity>
+					if(route.name == "Chatrooms") {
+						return (
+							<TouchableOpacity
+								onPress={ onCreateChatroom }
+							>
+								<FontAwesomeIcon
+									style={{ marginRight: 16 }}
+									icon='plus' 
+									size={22} 
+									color='#404040'
+								/>
+							</TouchableOpacity>
+						)
+					} else if(route.name == "Friends") {
+						return (
+							<TouchableOpacity
+								onPress={ onSearch }
+							>
+								<FontAwesomeIcon
+									style={{ marginRight: 16 }}
+									icon='user-plus' 
+									size={22} 
+									color='#404040'
+								/>
+							</TouchableOpacity>
+						)
+					}
 				},
                 tabBarIcon: ({ focused, color, size }) => {
 					const icons = {
 						Requests: 'bell',
 						Friends: 'people-group',
+						Chatrooms: 'comments',
 						Profile: 'user'
 					}
 					const icon = icons[route.name]
@@ -73,6 +97,7 @@ function HomeScreen({ navigation }) {
         >
             <Tab.Screen name="Requests" component={RequestsScreen} options={{ title: '친구 요청' }}></Tab.Screen>
             <Tab.Screen name="Friends" component={FriendsScreen} options={{ title: '친구 리스트' }}></Tab.Screen>
+			<Tab.Screen name="Chatrooms" component={ChatroomScreen} options={{ title: '채팅창' }}></Tab.Screen>
             <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: '프로필' }}></Tab.Screen>
         </Tab.Navigator>
     )

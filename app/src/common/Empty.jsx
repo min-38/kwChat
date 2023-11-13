@@ -23,7 +23,8 @@ function Empty({ icon, message, centered=true }) {
 			<Text
 				style={{
 					color: '#c3c3c3',
-					fontSize: 16
+					fontSize: 16,
+					textAlign: 'center'
 				}}
 			>
 				{message}
