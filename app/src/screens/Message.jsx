@@ -25,7 +25,7 @@ function MessageHeader({ friend }) {
 					fontWeight: 'bold'
 				}}
 			>
-				{friend.name}
+				{friend.username}
 			</Text>
 		</View>
 	)
@@ -279,7 +279,7 @@ function MessagesScreen({ navigation, route }) {
 
 	function onType(value) {
 		setMessage(value)
-		messageType(friend.userid)
+		messageType(friend.username)
 	}
 
 	return (

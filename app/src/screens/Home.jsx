@@ -97,7 +97,7 @@ function HomeScreen({ navigation }) {
         >
             <Tab.Screen name="Requests" component={RequestsScreen} options={{ title: '친구 요청' }}></Tab.Screen>
             <Tab.Screen name="Friends" component={FriendsScreen} options={{ title: '친구 리스트' }}></Tab.Screen>
-			<Tab.Screen name="Chatrooms" component={ChatroomScreen} options={{ title: '채팅창' }}></Tab.Screen>
+			{/* <Tab.Screen name="Chatrooms" component={ChatroomScreen} options={{ title: '채팅창' }}></Tab.Screen> */}
             <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: '프로필' }}></Tab.Screen>
         </Tab.Navigator>
     )

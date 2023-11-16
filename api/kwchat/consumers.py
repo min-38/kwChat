@@ -52,7 +52,8 @@ class ChatConsumer(WebsocketConsumer):
 
 		# 친구 요청 수락
 		if data_source == 'friend.list':
-			self.get_friend_list(data)
+			self.receive_friend_list(data)
+			# self.get_friend_list(data)
 		# 메세지 목록
 		elif data_source == 'message.list':
 			self.receive_message_list(data)
@@ -229,6 +230,9 @@ class ChatConsumer(WebsocketConsumer):
 		# Update the connection
 		connection.accepted = True
 		connection.save()
+
+		print("ssshiiival")
+		print(connection)
 
 		try:
 			Friend.insertFriend(connection.sender.id, connection.receiver.id)

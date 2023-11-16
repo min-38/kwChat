@@ -70,7 +70,13 @@ class Friend(models.Model):
 	def getFriends(user_id):
 		cursor = connection.cursor()
 		cursor.execute(
-			"SELECT userid, username, email, thumbnail FROM kwchat_user where id in ((SELECT friendid FROM kwchat_friend where userid = %s))", [user_id]
+			"""
+				SELECT
+					userid, username, email, thumbnail
+				FROM
+					kwchat_user kcu
+				WHERE
+					kcu.id in ((SELECT friendid FROM kwchat_friend where userid = %s))""", [user_id]
 		)
 		datas = cursor.fetchall()
 
