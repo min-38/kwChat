@@ -76,60 +76,82 @@ function SignInScreen({ navigation }) {
     }
 
     return (
-        <ImageBackground
-            source={require("../assets/images/bg.png")}
-            style={{
-                height: null,
-                resizeMode: "cover",
-                overflow: "hidden",
-                flex: 1
-            }}>
-            <SafeAreaView style={{ flex: 1 }}>
-                <KeyboardAvoidingView behavior="height" style={{ flex: 1 }}>
-                    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                        <View 
+        <SafeAreaView style={{ flex: 1 }}>
+            <KeyboardAvoidingView behavior="height" style={{ flex: 1 }}>
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <View 
+                        style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            paddingHorizontal: 20,
+                        }}
+                    >
+                        <Text
                             style={{
-                                flex: 1,
-                                justifyContent: 'center',
-                                paddingHorizontal: 20,
+                                color: "#202020",
+                                textAlign: 'center',
+                                fontSize: 48,
+                                fontFamily: 'Sunflower-Light',
                             }}
                         >
-                            <AppName logoVisible={1} descVisible={1}/>
-                            
-                            <Input
-                                title="아이디"
-                                value={userid}
-                                error={useridError}
-                                setValue={setuserid}
-                                setError={setuseridError}
-                            />
-                            <Input 
-                                title="패스워드"
-                                value={password}
-                                error={passwordError}
-                                setValue={setPassword}
-                                setError={setPasswordError}
-                                secureTextEntry={true}
-                            />
-
-                            <Button
-                                title="로그인"
-                                onPress={onSignIn}
-                            />
-
-                            <Text style={{ textAlign: 'center', marginTop: 40 }}>
-                                이런! 계정이 없으신가요? <Text
-                                    style={{ color: 'blue' }}
-                                    onPress={() => navigation.navigate('SignUp')}
-                                >
-                                    회원가입
-                                </Text>
+                            Relation
+                            <Text
+                                style={{
+                                    color: 'red',
+                                    textAlign: 'center',
+                                    fontSize: 48,
+                                    fontFamily: 'Sunflower-Light',
+                                    fontWeight: 'bold',
+                                }}
+                            >
+                                Ship
                             </Text>
-                        </View>
-                    </TouchableWithoutFeedback>
-                </KeyboardAvoidingView>
-            </SafeAreaView>
-        </ImageBackground>
+                        </Text>
+                        <Text
+                            style={{
+                                textAlign: 'center',
+                                fontSize: 18,
+                                fontFamily: 'Sunflower-Light',
+                                fontWeight: 'bold',
+                                marginBottom: 30
+                            }}
+                        >
+                            Relationship-focused chat app
+                        </Text>
+                        
+                        <Input
+                            title="아이디"
+                            value={userid}
+                            error={useridError}
+                            setValue={setuserid}
+                            setError={setuseridError}
+                        />
+                        <Input 
+                            title="패스워드"
+                            value={password}
+                            error={passwordError}
+                            setValue={setPassword}
+                            setError={setPasswordError}
+                            secureTextEntry={true}
+                        />
+
+                        <Button
+                            title="로그인"
+                            onPress={onSignIn}
+                        />
+
+                        <Text style={{ textAlign: 'center', marginTop: 40 }}>
+                            이런! 계정이 없으신가요? <Text
+                                style={{ color: 'blue' }}
+                                onPress={() => navigation.navigate('SignUp')}
+                            >
+                                회원가입
+                            </Text>
+                        </Text>
+                    </View>
+                </TouchableWithoutFeedback>
+            </KeyboardAvoidingView>
+        </SafeAreaView>
     )
 }
 

@@ -111,3 +111,53 @@ class Message(models.Model):
 
 	def __str__(self):
 		return self.user.userid + ': ' + self.text
+	
+class Memo(models.Model):
+	def load(writer_id, connection_id):
+		cursor = connection.cursor()
+		cursor.execute("""
+				SELECT
+					title, content, updated_at
+				FROM
+					kwchat_memo	
+				WHERE
+					writer_id = %s
+				AND
+					connection_id = %s
+				""", [writer_id, connection_id])
+		data = cursor.fetchone()
+
+		connection.commit()
+		connection.close()
+
+		memo = None
+
+		print(data)
+
+		if data:
+			memo = {
+				'title': data[0],
+				'content': data[1],
+				'updated_at': str(data[2])
+			}
+		else:
+			memo = {
+				'title': "",
+				'content': "",
+				'updated_at': "",
+			}
+
+		return memo
+
+	def save(writer_id, connection_id, title, content):
+		cursor = connection.cursor()
+		cursor.execute("""
+				INSERT INTO
+					kwchat_memo
+						(writer_id, connection_id, title, content)
+				VALUES (%s, %s, %s, %s)
+				ON DUPLICATE KEY UPDATE title=%s, content=%s;
+				""", [writer_id, connection_id, title, content, title, content])
+
+		connection.commit()
+		connection.close()

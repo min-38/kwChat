@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
-import { Animated, Easing, FlatList, InputAccessoryView, Keyboard, Platform, SafeAreaView, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native"
+import { Animated, Easing, FlatList, InputAccessoryView, Platform, SafeAreaView, Text, TextInput, TouchableOpacity, View } from "react-native"
 import Thumbnail from "../common/Thumbnail"
+import MemoScreen from "../common/Memo"
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import useGlobal from "../core/global"
 
@@ -204,42 +205,75 @@ function MessageBubble({ index, message, friend }) {
 	)
 }
 
-function MessageInput({ message, setMessage, onSend }) {
+function MessageInput({ message, setMessage, onSend, connectionId }) {
+
+	const [isMemoOpen, setIsMemoOpen] = useState(false);
+	const memo = useGlobal(state => state.loadMemo)
+	const memoLoad = useGlobal(state => state.memoload)
+
+	const onShowMemo = () => {
+		new Promise( (resolve, reject) => {
+			memo(connectionId)
+			resolve()
+		})
+		.then((result) => {
+			setIsMemoOpen((isMemoOpen) => !isMemoOpen)
+		})
+		.catch((result) => {
+			console.log("reject: " ,result);
+			reject()
+		})
+	}
+
 	return (
-		<View
-			style={{
-				paddingHorizontal: 10,
-				paddingBottom: 10,
-				backgroundColor: 'white',
-				flexDirection: 'row',
-				alignItems: 'center'
-			}}
-		>
-			<TextInput
-				placeholder="Message..."
-				placeholderTextColor='#909090'
-				value={message}
-				onChangeText={setMessage}
+		<View>
+			<View
 				style={{
-					flex: 1,
-					paddingHorizontal: 18,
-					borderWidth: 1,
-					borderRadius: 25,
-					borderColor: '#d0d0d0',
+					paddingHorizontal: 10,
 					backgroundColor: 'white',
-					height: 50
+					flexDirection: 'row',
+					alignItems: 'center'
 				}}
-			/>
-			<TouchableOpacity onPress={onSend}>
-				<FontAwesomeIcon
-					icon='paper-plane'
-					size={22}
-					color={'#303040'}
+			>
+				<TouchableOpacity
+					onPress={onShowMemo}
+				>
+					<FontAwesomeIcon
+						icon='file-lines'
+						size={22}
+						color={'#FFBF00'}
+						style={{
+							marginHorizontal: 12
+						}}
+					/>
+				</TouchableOpacity>
+				<TextInput
+					placeholder="Message..."
+					placeholderTextColor='#909090'
+					value={message}
+					onChangeText={setMessage}
 					style={{
-						marginHorizontal: 12
+						flex: 1,
+						paddingHorizontal: 18,
+						borderWidth: 1,
+						borderRadius: 25,
+						borderColor: '#d0d0d0',
+						backgroundColor: 'white',
+						height: 50
 					}}
 				/>
-			</TouchableOpacity>
+				<TouchableOpacity onPress={onSend}>
+					<FontAwesomeIcon
+						icon='paper-plane'
+						size={22}
+						color={'#303040'}
+						style={{
+							marginHorizontal: 12
+						}}
+					/>
+				</TouchableOpacity>
+			</View>
+			{ isMemoOpen && memoLoad && <MemoScreen connectionId={connectionId}/> }
 		</View>
 	)
 }
@@ -279,7 +313,7 @@ function MessagesScreen({ navigation, route }) {
 
 	function onType(value) {
 		setMessage(value)
-		messageType(friend.username)
+		messageType(friend.userid)
 	}
 
 	return (
@@ -321,6 +355,7 @@ function MessagesScreen({ navigation, route }) {
 						message={message}
 						setMessage={onType}
 						onSend={onSend}
+						connectionId={connectionId}
 					/>
 				</InputAccessoryView>
 			) : (
@@ -328,6 +363,7 @@ function MessagesScreen({ navigation, route }) {
 					message={message}
 					setMessage={onType}
 					onSend={onSend}
+					connectionId={connectionId}
 				/>
 			)}
 			

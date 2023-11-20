@@ -7,7 +7,9 @@ from django.core.files.base import  ContentFile
 from django.db.models import Q, Exists, OuterRef
 from django.db.models.functions import Coalesce
 
-from .models import User, Connection, Message, Friend
+from datetime import datetime
+
+from .models import User, Connection, Message, Friend, Memo
 
 from .serializers import (
 	UserSerializer,
@@ -63,6 +65,12 @@ class ChatConsumer(WebsocketConsumer):
 		# 유저가 메시지를 작성하고 있을 때
 		elif data_source == 'message.type':
 			self.receive_message_type(data)
+		# 메모 불러오기
+		elif data_source == 'memo.get':
+			self.load_memo(data)
+		# 메모 저장
+		elif data_source == 'memo.save':
+			self.save_memo(data)
 		# 친구 요청 수락
 		elif data_source == 'request.accept':
 			self.receive_request_accept(data)
@@ -214,7 +222,17 @@ class ChatConsumer(WebsocketConsumer):
 			'userid': user.userid
 		}
 		self.send_group(recipient_userid, 'message.type', data)
+	
+	def load_memo(self, data):
+		user = self.scope['user']
+		memo = Memo.load(user.id, data.get('connectionid'))
+		self.send_group(user.userid, 'memo.get', memo)
 
+	def save_memo(self, data):
+		user = self.scope['user']
+		Memo.save(user.id, data.get('connectionid'), data.get('title'), data.get('content'))
+		memo = Memo.load(user.id, data.get('connectionid'))
+		self.send_group(user.userid, 'memo.save', memo)
 
 	def receive_request_accept(self, data):
 		userid = data.get('userid')
@@ -230,9 +248,6 @@ class ChatConsumer(WebsocketConsumer):
 		# Update the connection
 		connection.accepted = True
 		connection.save()
-
-		print("ssshiiival")
-		print(connection)
 
 		try:
 			Friend.insertFriend(connection.sender.id, connection.receiver.id)
@@ -293,7 +308,6 @@ class ChatConsumer(WebsocketConsumer):
 		self.send_group(
 			connection.receiver.userid, 'request.connect', serialized.data
 		)
-
 
 	def receive_request_list(self, data):
 		user = self.scope['user']

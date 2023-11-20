@@ -29,7 +29,6 @@ function RequestAccept({ item }) {
 
 function RequestRow({ item }) {
 	const message = '친구 요청이 왔습니다!'
-	//const time = '7m ago'
 
 	return (
 		<Cell>
@@ -70,7 +69,6 @@ function RequestRow({ item }) {
 
 function RequestsScreen() {
 	const requestList = useGlobal(state => state.requestList)
-	console.log(requestList)
 
 	// Show loading indicator
 	if (requestList === null) {
@@ -94,7 +92,7 @@ function RequestsScreen() {
 				renderItem={({ item }) => (
 					<RequestRow item={item} />
 				)}
-				keyExtractor={item => item.sender.userid}
+				keyExtractor={item => item.id}
 			/>
 		</View>
 	)

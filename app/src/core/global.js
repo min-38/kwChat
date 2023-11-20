@@ -72,6 +72,20 @@ function responseMessageType(set, get, data) {
 	}))
 }
 
+function responseMemoLoad(set, get, memo) {
+	set((state) => ({
+		memoInfo: memo,
+		memoload: true
+	}))
+}
+
+function responseMemoSave(set, get, memo) {
+	set((state) => ({
+		memoInfo: memo,
+		// memoload: true
+	}))
+}
+
 function responseRequestAccept(set, get, connection) {
 	const user = get().user
 	// If I was the one that accepted the request, remove 
@@ -224,6 +238,7 @@ const useGlobal = create((set, get) => ({
 	requestList: null,
 	friendList: null,
 	chatroomList: null,
+	memo: null,
 	
 	init: async () => {
 		const credentials = await secure.get('credentials')
@@ -306,9 +321,6 @@ const useGlobal = create((set, get) => ({
 				source: 'friend.list'
 			}))
 
-			socket.send(JSON.stringify({
-				source: 'chatroom.list'
-			}))
 		}
 		socket.onmessage = (event) => {
 			// Convert data to javascript object
@@ -324,6 +336,8 @@ const useGlobal = create((set, get) => ({
 				'message.list':    responseMessageList,
 				'message.send':    responseMessageSend,
 				'message.type':    responseMessageType,
+				'memo.get':        responseMemoLoad,
+				'memo.save':       responseMemoSave,
 				'request.accept':  responseRequestAccept,
 				'request.connect': responseRequestConnect,
 				'request.list':    responseRequestList,
@@ -425,6 +439,40 @@ const useGlobal = create((set, get) => ({
 			userid: userid
 		}))
 	},
+
+	//---------------------
+	//     Memo
+	//---------------------
+
+	memoSaveTime: null,
+	memoInfo: null,
+	memoload: false,
+
+	loadMemo: (connectionId) => {
+		set((state) => ({
+			memoload: false
+		}))
+		if(connectionId) {
+			const socket = get().socket
+			socket.send(JSON.stringify({
+				source: 'memo.get',
+				connectionid: connectionId
+			}))
+		}
+	},
+
+	saveMemo: (title, content, connectionid) => {
+		if(title || content) {
+			const socket = get().socket
+			socket.send(JSON.stringify({
+				source: 'memo.save',
+				title: title,
+				content: content,
+				connectionid: connectionid
+			}))
+		}
+	},
+
 
 	//---------------------
 	//     Requests
