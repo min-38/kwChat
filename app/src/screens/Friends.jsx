@@ -1,4 +1,5 @@
-import { ActivityIndicator, FlatList, SafeAreaView, Text, TouchableOpacity, View } from "react-native"
+import { useState } from "react"
+import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from "react-native"
 import Cell from "../common/Cell"
 import Empty from "../common/Empty"
 import useGlobal from "../core/global"
