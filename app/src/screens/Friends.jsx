@@ -26,19 +26,22 @@ function FriendRow({ navigation, item }) {
 						style={{
 							fontWeight: 'bold',
 							color: '#202020',
-							marginBottom: 4
+							paddingBottom: 4
 						}}
 					>
 						{item.friend.username}
 					</Text>
 					<Text
+						numberOfLines={1}
 						style={{
 							color: '#606060',
+							paddingBottom: 10
 						}}
 					>
-						{item.preview} <Text style={{ color: '#909090', fontSize: 13 }}>
-							{utils.formatTime(item.updated)}
-						</Text>
+						{item.preview}
+					</Text>
+					<Text style={{ color: '#909090', fontSize: 13 }}>
+						{utils.formatTime(item.updated)}
 					</Text>
 				</View>
 			</Cell>
