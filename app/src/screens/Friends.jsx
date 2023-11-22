@@ -59,7 +59,7 @@ function FriendsScreen({ navigation }) {
 	// Show empty if no requests
 	if (friendList.length === 0) {
 		return (
-			<Empty icon='inbox' message='No messages yet' />
+			<Empty icon='face-smile' message='친구를 추가하고 대화를 나눠보세요.' />
 		)
 	}
 
