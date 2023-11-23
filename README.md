@@ -49,12 +49,7 @@
 * 대화 화면 내 개인 메모장
 
 #### 스크린샷
-<img src="screenshots/login.png" alt="App screenshot - login screen" width="250" />
-<img src="screenshots/friendlist.png" alt="App screenshot - friend list" width="250" />
-<img src="screenshots/request.png" alt="App screenshot - send friend request" width="250" />
-<img src="screenshots/accept.png" alt="App screenshot - aceept friend request" width="250" />
-<img src="screenshots/chat.png" alt="App screenshot - chat screen" width="250" />
-<img src="screenshots/profile.png" alt="App screenshot - user profile" width="250" />
+<img src="screenshots/login.png" alt="App screenshot - login screen" width="250" /> <img src="screenshots/friendlist.png" alt="App screenshot - friend list" width="250" /> <img src="screenshots/request.png" alt="App screenshot - send friend request" width="250" /> <img src="screenshots/accept.png" alt="App screenshot - aceept friend request" width="250" /> <img src="screenshots/chat.png" alt="App screenshot - chat screen" width="250" /> <img src="screenshots/profile.png" alt="App screenshot - user profile" width="250" />
 
 #### 라이센스
 MIT License
